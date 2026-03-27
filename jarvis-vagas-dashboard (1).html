@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS · Agente de Vagas · Thiago Soliani</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#020b18;--panel:rgba(0,180,255,0.05);--border:rgba(0,180,255,0.18);--cyan:#00b4ff;--cyan2:#00d4ff;--gold:#ffd700;--green:#00ff88;--orange:#ff8c00;--text:#c8e8ff;--muted:rgba(200,232,255,0.45);--glow:0 0 20px rgba(0,180,255,0.4);--glow2:0 0 40px rgba(0,180,255,0.15)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,180,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,255,0.04) 1px,transparent 1px);background-size:40px 40px;animation:gridMove 20s linear infinite;pointer-events:none;z-index:0}
+@keyframes gridMove{from{background-position:0 0}to{background-position:40px 40px}}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(0,100,200,0.1) 0%,transparent 70%);pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:24px 20px 60px}
+header{display:flex;align-items:center;justify-content:space-between;padding:20px 0 28px;border-bottom:1px solid var(--border);margin-bottom:28px}
+.logo{display:flex;align-items:center;gap:14px}
+.logo-icon{width:48px;height:48px;border:2px solid var(--cyan);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:var(--glow);animation:pulse 2s ease-in-out infinite;font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--cyan);background:rgba(0,180,255,0.07)}
+@keyframes pulse{0%,100%{box-shadow:var(--glow)}50%{box-shadow:0 0 35px rgba(0,180,255,0.7)}}
+.logo-text h1{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;letter-spacing:4px;color:#fff}
+.logo-text p{font-size:11px;letter-spacing:3px;color:var(--muted);margin-top:2px}
+.header-meta{text-align:right;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);line-height:1.9}
+.live{color:#00ff88;animation:blink 1.2s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.applied-bar{display:flex;align-items:center;justify-content:space-between;background:rgba(255,140,0,0.06);border:1px solid rgba(255,140,0,0.2);border-radius:6px;padding:10px 18px;margin-bottom:24px;gap:12px;flex-wrap:wrap}
+.applied-bar-label{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orange);letter-spacing:2px}
+.applied-count{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:var(--orange)}
+.applied-bar-info{font-size:12px;color:var(--muted)}
+.candidate-strip{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--cyan);border-radius:6px;padding:16px 22px;margin-bottom:24px;display:flex;align-items:center;gap:20px;backdrop-filter:blur(10px)}
+.candidate-avatar{width:52px;height:52px;border:2px solid var(--cyan);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;background:linear-gradient(135deg,rgba(0,100,200,0.3),rgba(0,180,255,0.1));color:var(--cyan);flex-shrink:0}
+.candidate-info h2{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:#fff}
+.candidate-info p{font-size:13px;color:var(--muted);margin-top:3px}
+.candidate-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.tag{background:rgba(0,180,255,0.1);border:1px solid rgba(0,180,255,0.3);border-radius:3px;padding:2px 9px;font-size:11px;letter-spacing:1px;color:var(--cyan);font-family:'Share Tech Mono',monospace}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.stat-card{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:16px 18px;backdrop-filter:blur(10px);position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),transparent)}
+.stat-label{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.stat-value{font-family:'Orbitron',sans-serif;font-size:26px;font-weight:900;color:var(--cyan);margin-top:6px}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.section-title{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;letter-spacing:4px;color:var(--cyan);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.chart-panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:22px 24px;margin-bottom:28px;backdrop-filter:blur(10px)}
+.chart-bars{display:flex;flex-direction:column;gap:8px}
+.chart-row{display:flex;align-items:center;gap:12px}
+.chart-label{width:200px;font-size:11px;color:var(--text);flex-shrink:0;text-align:right;font-family:'Share Tech Mono',monospace}
+.chart-bar-wrap{flex:1;height:20px;background:rgba(255,255,255,0.04);border-radius:3px;overflow:hidden}
+.chart-bar-fill{height:100%;border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-family:'Orbitron',monospace;font-size:10px;font-weight:700;position:relative;overflow:hidden}
+.chart-bar-fill::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:shimmer 2.5s infinite}
+@keyframes shimmer{to{left:200%}}
+.jobs-grid{display:flex;flex-direction:column;gap:14px}
+.job-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:18px 22px;backdrop-filter:blur(10px);position:relative;overflow:hidden;transition:border-color .3s,box-shadow .3s,opacity .5s}
+.job-card:hover{border-color:rgba(0,180,255,0.45);box-shadow:var(--glow2)}
+.job-card.top-pick{border-left:3px solid var(--cyan)}
+.job-card.applied-card{opacity:0.3;pointer-events:none}
+.top-badge{position:absolute;top:12px;right:14px;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:var(--gold);background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.3);padding:3px 10px;border-radius:2px}
+.applied-stamp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-10deg);font-family:'Orbitron',sans-serif;font-size:26px;font-weight:900;color:rgba(255,140,0,0.2);letter-spacing:6px;pointer-events:none;white-space:nowrap;border:3px solid rgba(255,140,0,0.15);padding:6px 16px;border-radius:4px}
+.job-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.job-num{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:900;color:var(--cyan);width:28px;flex-shrink:0;margin-top:2px;opacity:.5}
+.job-title{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:3px}
+.job-company{font-size:13px;color:var(--cyan2);font-weight:600}
+.job-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;padding-left:40px}
+.meta-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-family:'Share Tech Mono',monospace}
+.meta-pill .dot{width:5px;height:5px;border-radius:50%;background:var(--cyan);opacity:.5}
+.job-desc{font-size:13px;color:var(--muted);padding-left:40px;margin-bottom:12px;line-height:1.5}
+.job-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-left:40px;flex-wrap:wrap}
+.aderencia-wrap{display:flex;align-items:center;gap:10px}
+.aderencia-gauge{width:50px;height:50px;position:relative;flex-shrink:0}
+.aderencia-gauge svg{transform:rotate(-90deg)}
+.gauge-bg{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:4}
+.gauge-fill{fill:none;stroke-width:4;stroke-linecap:round}
+.gauge-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:900;line-height:1}
+.gauge-label span{font-size:7px;opacity:.5;margin-top:1px}
+.aderencia-text{font-size:11px;color:var(--muted);max-width:200px;line-height:1.4}
+.job-actions{display:flex;gap:7px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:4px;border:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;transition:all .25s;white-space:nowrap}
+.btn-cv{background:linear-gradient(135deg,rgba(0,255,136,0.15),rgba(0,255,136,0.06));border:1px solid rgba(0,255,136,0.45);color:var(--green)}
+.btn-cv:hover{background:rgba(0,255,136,0.25);box-shadow:0 0 16px rgba(0,255,136,0.3);transform:translateY(-1px)}
+.btn-link{background:transparent;border:1px solid rgba(255,255,255,0.14);color:var(--muted);font-size:11px}
+.btn-link:hover{border-color:rgba(255,255,255,0.3);color:var(--text)}
+.btn-applied{background:linear-gradient(135deg,rgba(255,140,0,0.15),rgba(255,140,0,0.06));border:1px solid rgba(255,140,0,0.45);color:var(--orange)}
+.btn-applied:hover{background:rgba(255,140,0,0.25);box-shadow:0 0 16px rgba(255,140,0,0.3);transform:translateY(-1px)}
+.modal-overlay{position:fixed;inset:0;background:rgba(2,11,24,0.93);backdrop-filter:blur(8px);display:none;align-items:flex-start;justify-content:center;z-index:1000;padding:24px 20px;overflow-y:auto}
+.modal-overlay.open{display:flex;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:linear-gradient(145deg,#040f20,#020b18);border:1px solid rgba(0,180,255,0.4);border-radius:10px;width:100%;max-width:780px;box-shadow:0 0 60px rgba(0,180,255,0.12),0 40px 80px rgba(0,0,0,0.6);margin:auto;overflow:hidden;animation:slideUp .35s cubic-bezier(.17,.67,.35,1.1)}
+@keyframes slideUp{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border)}
+.modal-type{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:4px;color:var(--green);margin-bottom:4px}
+.modal-title{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:#fff}
+.modal-close-btn{width:32px;height:32px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;border-radius:4px;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close-btn:hover{border-color:var(--cyan);color:#fff}
+.modal-body{padding:24px;min-height:120px}
+.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;gap:18px}
+.loading-ring{width:52px;height:52px;border:3px solid rgba(0,255,136,0.15);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;color:var(--green);animation:blink 1s step-end infinite}
+.loading-sub{font-size:12px;color:var(--muted);text-align:center}
+.result-box{background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:6px;padding:20px;font-size:14px;line-height:1.8;color:var(--text);white-space:pre-wrap;font-family:'Rajdhani',sans-serif;max-height:480px;overflow-y:auto}
+.result-box::-webkit-scrollbar{width:4px}
+.result-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;padding:16px 24px;border-top:1px solid var(--border)}
+.btn-action{padding:8px 18px;border-radius:4px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;transition:all .2s}
+.btn-copy{background:rgba(0,255,136,0.12);border:1px solid rgba(0,255,136,0.4);color:var(--green)}
+.btn-copy:hover{background:rgba(0,255,136,0.22)}
+.btn-dismiss{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-dismiss:hover{border-color:rgba(255,255,255,0.3);color:var(--text)}
+footer{text-align:center;padding-top:40px;font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(200,232,255,0.15);letter-spacing:2px;border-top:1px solid rgba(0,180,255,0.07);margin-top:40px}
+@media(max-width:720px){.stats-row{grid-template-columns:repeat(2,1fr)}.chart-label{width:130px;font-size:10px}.job-footer{flex-direction:column;align-items:flex-start}.aderencia-text{max-width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="logo">
+    <div class="logo-icon">J</div>
+    <div class="logo-text"><h1>JARVIS</h1><p>AGENTE DE VAGAS &#183; MODO ATIVO</p></div>
+  </div>
+  <div class="header-meta">
+    <div><span class="live">&#9679; </span>SISTEMA ONLINE</div>
+    <div>DATA: 27.03.2026</div>
+    <div>CANDIDATO: T. SOLIANI</div>
+    <div id="headerApplied">APLICADAS: 0 / 20</div>
+  </div>
+</header>
+
+<div class="applied-bar">
+  <div>
+    <div class="applied-bar-label">&#9654; VAGAS APLICADAS</div>
+    <div class="applied-bar-info">Clique em "Aplicado" para registrar candidatura e remover da busca ativa</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px">
+    <div class="applied-count"><span id="appliedNum">0</span><span style="font-size:12px;opacity:.5"> / 20</span></div>
+  </div>
+</div>
+
+<div class="candidate-strip">
+  <div class="candidate-avatar">TS</div>
+  <div class="candidate-info">
+    <h2>Thiago Soliani de Mascena</h2>
+    <p>Gerente / Head de Marketing &#183; São Paulo, SP &#183; 20 anos de experiência</p>
+    <div class="candidate-tags">
+      <span class="tag">TRADE MARKETING</span><span class="tag">BRANDING</span>
+      <span class="tag">LUXO &amp; PREMIUM</span><span class="tag">EVENTOS</span>
+      <span class="tag">USP POS-GRAD</span><span class="tag">INGLES AVC</span>
+    </div>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-card"><div class="stat-label">Vagas Ativas</div><div class="stat-value" id="statAtivas">20</div><div class="stat-sub">Publicadas em marco/2026</div></div>
+  <div class="stat-card"><div class="stat-label">Aderencia Media</div><div class="stat-value">74<span style="font-size:14px">%</span></div><div class="stat-sub">Acima de 50% (criterio)</div></div>
+  <div class="stat-card"><div class="stat-label">Top Match</div><div class="stat-value">90<span style="font-size:14px">%</span></div><div class="stat-sub">Cosmeticos de Luxo</div></div>
+  <div class="stat-card"><div class="stat-label">Aplicadas</div><div class="stat-value" id="statAplicadas">0</div><div class="stat-sub">Aguardando retorno</div></div>
+</div>
+
+<div class="section-title">Analise de Aderencia por Vaga</div>
+<div class="chart-panel">
+  <div class="chart-bars" id="chartBars"></div>
+</div>
+
+<div class="section-title">Vagas Selecionadas</div>
+<div class="jobs-grid" id="jobsGrid"></div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-type" id="modalType"></div><div class="modal-title" id="modalTitle"></div></div>
+      <button class="modal-close-btn" id="btnCloseTop">&#x2715;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter" style="display:none">
+      <button class="btn-action btn-copy" id="btnCopy">&#x2398; Copiar</button>
+      <button class="btn-action btn-dismiss" id="btnCloseBot">Fechar</button>
+    </div>
+  </div>
+</div>
+<footer>JARVIS &#183; AGENTE DE VAGAS &#183; POWERED BY CLAUDE &#183; 2026 &#183; THIAGO SOLIANI DE MASCENA</footer>
+
+<script>
+var JOBS=[
+  {num:"01",top:true,title:"Gerente de Marketing",company:"Multinacional Cosmeticos de Luxo",fonte:"Robert Half",local:"Sao Paulo SP - Hibrido",salario:"R$ 15-22k",data:"Mar/2026",link:"https://www.roberthalf.com/br/pt/vagas/sao-paulo/gerente-de-marketing",aderencia:90,color:"#00b4ff",motivo:"Casa Higienopolis com Prada DG e Macallan e match direto com o setor de luxo.",desc:"Liderar planejamento de marketing de marcas de luxo adaptando estrategias globais ao mercado local."},
+  {num:"02",top:true,title:"Coordenador de Eventos e Conteudo",company:"Marca Premium Michael Page",fonte:"Michael Page",local:"Sao Paulo SP - Hibrido",salario:"A combinar",data:"Mar/2026",link:"https://www.michaelpage.com.br/jobs/marketing/brasil-s%C3%A3o-paulo",aderencia:88,color:"#00c4aa",motivo:"Casa Higienopolis e o case perfeito: espaco premium ativacoes de luxo end-to-end.",desc:"Liderar eventos e ativacoes locais para fortalecer marca premium criando conteudo e impulsionando resultados omnicanal."},
+  {num:"03",top:true,title:"Gerente de Trade Marketing",company:"Varejo de Moda Robert Half",fonte:"Robert Half",local:"Sao Paulo SP - Presencial",salario:"A combinar",data:"Mar/2026",link:"https://www.roberthalf.com/br/pt/vagas/sao-paulo/gerente-de-marketing",aderencia:85,color:"#00aaee",motivo:"Trade Marketing no Grupo GO com Cartier e Mercedes-Benz e match direto.",desc:"Desenvolver calendario anual de Trade Marketing PDV ativacoes em loja e liderar equipe multidisciplinar."},
+  {num:"04",top:true,title:"Gerente de Marketing JHSF Malls",company:"JHSF Malls e Retail",fonte:"LinkedIn",local:"Sao Paulo SP - Presencial",salario:"A combinar",data:"Mar/2026",link:"https://br.linkedin.com/jobs/gerente-de-marketing-vagas-s%C3%A3o-paulo",aderencia:87,color:"#00b8dd",motivo:"Cases em eventos CRM e marketing de shoppings - Iguatemi e referencia no mesmo segmento.",desc:"Gestao matricial das equipes de marketing dos shoppings governanca de marca CRM e ativacoes de luxo."},
+  {num:"05",top:false,title:"Gerente Trade Marketing SR",company:"Empresa Confidencial",fonte:"LinkedIn",local:"Sao Paulo SP - Hibrido",salario:"A combinar",data:"22/03/2026",link:"https://br.linkedin.com/jobs/gerente-de-marketing-vagas-s%C3%A3o-paulo",aderencia:82,color:"#0088cc",motivo:"Trade Marketing e eixo central - consultoria B2B Brain Trust e diferencial.",desc:"Lideranca senior em Trade Marketing com gestao de canais PDV e times comerciais."},
+  {num:"06",top:false,title:"Head de Marketing",company:"Grande Empresa Michael Page",fonte:"Michael Page",local:"Sao Paulo SP - Hibrido",salario:"R$ 20-30k",data:"Mar/2026",link:"https://www.michaelpage.com.br/jobs/marketing/brasil-s%C3%A3o-paulo",aderencia:80,color:"#0077bb",motivo:"Lideranca estrategica e operacional demonstrada no Iguatemi e Benassi.",desc:"Liderar funcao de marketing estrategico e operacional coordenando multiplas unidades de negocio."},
+  {num:"07",top:false,title:"Coordenador de Eventos Corporativos",company:"Michael Page - Empresa Premium",fonte:"Michael Page",local:"Sao Paulo SP - Hibrido",salario:"A combinar",data:"Mar/2026",link:"https://www.michaelpage.com.br/jobs/marketing/brasil-s%C3%A3o-paulo",aderencia:83,color:"#007799",motivo:"Operacao de grandes eventos e feiras B2B - Casa Higienopolis e case direto.",desc:"Coordenar equipe em projetos de eventos corporativos B2B com foco em geracao de receita e relacionamento."},
+  {num:"08",top:false,title:"Gerente de Marketing",company:"TV Globo",fonte:"Gupy",local:"Sao Paulo SP - Presencial",salario:"A combinar",data:"Mar/2026",link:"https://globo.gupy.io/jobs/10855379",aderencia:78,color:"#006699",motivo:"Gestao de projetos institucionais de alto impacto e crescimento digital sao fortes.",desc:"Liderar integracao do planejamento de Marketing da Globo e crescimento do P&L digital."},
+  {num:"09",top:false,title:"Gerente Mkt Brand Communications",company:"Empresa Confidencial",fonte:"LinkedIn",local:"Sao Paulo SP",salario:"A combinar",data:"13/03/2026",link:"https://br.linkedin.com/jobs/gerente-de-marketing-vagas-s%C3%A3o-paulo",aderencia:75,color:"#005588",motivo:"Branding e comunicacao integrada sao pilares fortes - Iguatemi Benassi Nadir.",desc:"Lideranca de estrategia de marca e comunicacao integrada para empresa de grande porte."},
+  {num:"10",top:false,title:"Gerente Mkt Multinacional Industrial",company:"Confidencial Michael Page",fonte:"Michael Page",local:"Sao Paulo SP - Hibrido",salario:"R$ 18-25k",data:"Mar/2026",link:"https://www.michaelpage.com.br/jobs/marketing/brasil-s%C3%A3o-paulo",aderencia:70,color:"#004466",motivo:"Transformacao do marketing como pilar estrategico - inteligencia de mercado e diferencial.",desc:"Liderar mudanca de posicionamento da divisao com visao de tendencias e analise de dados."},
+  {num:"11",top:false,title:"Gerente Mkt Entretenimento",company:"Grupo Entretenimento SP Robert Half",fonte:"Robert Half",local:"Sao Paulo SP - Presencial",salario:"A combinar",data:"Mar/2026",link:"https://www.roberthalf.com/br/pt/vagas/sao-paulo/gerente-de-marketing",aderencia:72,color:"#005577",motivo:"Gestao de marcas em espaco de eventos alinha com Casa Higienopolis.",desc:"Desenvolver estrategia de marketing para grupo de entretenimento com foco em eventos corporativos B2B."},
+  {num:"12",top:false,title:"Gerente de Trade Mkt Nestle",company:"Nestle Brasil",fonte:"LinkedIn",local:"Sao Paulo SP - Hibrido",salario:"A combinar",data:"Mar/2026",link:"https://br.linkedin.com/jobs/gerente-de-marketing-vagas-s%C3%A3o-paulo",aderencia:76,color:"#006688",motivo:"Trade Marketing em grande FMCG - experiencia Grupo GO com Speedo e base solida.",desc:"Liderar estrategia de Trade Marketing para portfolio Nestle gerenciando canais PDV e ativacoes nacionais."},
+  {num:"13",top:false,title:"Coordenador Marketing Senior",company:"Grupo CRM Chocolates",fonte:"LinkedIn",local:"Sao Paulo SP - Hibrido",salario:"A combinar",data:"Mar/2026",link:"https://br.linkedin.com/jobs/coordenador-de-marketing-vagas-s%C3%A3o-paulo",aderencia:68,color:"#004455",motivo:"Gestao de marca premium varejo e CRM sao pontos de contato com a trajetoria do Thiago.",desc:"Coordenar estrategias de marketing integradas com foco em varejo e-commerce e marca premium."},
+  {num:"14",top:false,title:"Gerente Trade Mkt Steck Schneider",company:"Steck Industria Eletrica",fonte:"Glassdoor",local:"Sao Paulo SP - Hibrido",salario:"A combinar",data:"Mar/2026",link:"https://www.glassdoor.com.br/Vaga/sao-paulo-gerente-de-trade-marketing",aderencia:66,color:"#004455",motivo:"Gestao de time multifuncional de marcas e trade no Brasil e Latam - ingles avancado exigido.",desc:"Gerenciar time responsavel pelas acoes das marcas Steck e Schneider e trade marketing Brasil e Latam."},
+  {num:"15",top:false,title:"Gerente Mkt Agronegocio",company:"Multinacional Agro Robert Half",fonte:"Robert Half",local:"Sao Paulo SP - Hibrido",salario:"A combinar",data:"Mar/2026",link:"https://www.roberthalf.com/br/pt/vagas/all/gerente-marketing",aderencia:65,color:"#004455",motivo:"Gestao de marca e eventos em industria - Brain Trust Consulting em inteligencia e diferencial.",desc:"Definir e implementar plano anual de marketing alinhado aos objetivos comerciais da companhia agro."},
+  {num:"16",top:false,title:"Gerente Mkt Estrategico",company:"Industria Multinacional Michael Page",fonte:"Michael Page",local:"Sao Paulo SP - Hibrido",salario:"R$ 18-28k",data:"Mar/2026",link:"https://www.michaelpage.com.br/jobs/marketing/brasil-s%C3%A3o-paulo",aderencia:71,color:"#005566",motivo:"Transformar marketing em area estrategica com dados - Brain Trust Consulting e diferencial.",desc:"Liderar mudanca de posicionamento com foco em tendencias dados e transformacao do marketing industrial."},
+  {num:"17",top:false,title:"Gerente Mkt Distribuicao Bebidas",company:"Distribuidora Nacional Robert Half",fonte:"Robert Half",local:"Sao Paulo SP - Hibrido",salario:"A combinar",data:"Mar/2026",link:"https://www.roberthalf.com/br/pt/vagas/all/gerente-marketing",aderencia:63,color:"#003d44",motivo:"Marketing de produto e canal - experiencia com portfolio de marcas premium e distribuicao.",desc:"Liderar estrategia de marketing e expansao do canal off trade com foco em emporios e atacadistas."},
+  {num:"18",top:false,title:"Gerente de Marketing Farma",company:"Cimed Farmaceutica",fonte:"Glassdoor",local:"Sao Paulo SP - Hibrido",salario:"A combinar",data:"Mar/2026",link:"https://www.glassdoor.com.br/Vaga/sao-paulo-gerente-de-trade-marketing",aderencia:60,color:"#003344",motivo:"Trade Marketing em grande farmaceutica - perfil senior que o Thiago oferece e diferencial.",desc:"Proporcionar saude e bem-estar liderando Trade Marketing e ativacoes nacionais para portfolio Cimed."},
+  {num:"19",top:false,title:"Gerente de Marketing",company:"Mattos Filho Advogados",fonte:"Gupy",local:"Sao Paulo SP - Presencial",salario:"A combinar",data:"Fev-Mar/2026",link:"https://mattosfilho.gupy.io/jobs/9916697",aderencia:62,color:"#003d55",motivo:"Branding institucional e eventos de alto padrao sao atrativos - setor juridico e diferente.",desc:"Gestao de marketing do Top 200 Global com foco em branding comunicacao e posicionamento institucional."},
+  {num:"20",top:false,title:"Gerente de Marketing Growth",company:"Rede Decisao Educacao",fonte:"Gupy",local:"Sao Paulo SP - Presencial",salario:"A combinar",data:"Mar/2026",link:"https://vemprarededecisao.gupy.io/jobs/9099204",aderencia:58,color:"#003344",motivo:"Gestao de times e campanhas integradas se alinham - foco em captacao de alunos difere do core.",desc:"Liderar estrategia de marketing para captacao e retencao de alunos em rede de escolas em Sao Paulo."},
+];
+
+var CIRC=Math.PI*2*22;
+var cardEls=[];
+var STORAGE_KEY="jarvis_v2_applied";
+var STORAGE_META="jarvis_v2_meta";
+function loadApplied(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||[];}catch(e){return[];}}
+function saveApplied(a){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(a));}catch(e){}}
+function loadMeta(){try{return JSON.parse(localStorage.getItem(STORAGE_META))||{};}catch(e){return{};}}
+function saveMeta(m){try{localStorage.setItem(STORAGE_META,JSON.stringify(m));}catch(e){}}
+function updateCounters(){var a=loadApplied();var n=a.length;var rem=JOBS.length-n;document.getElementById("appliedNum").textContent=n;document.getElementById("statAplicadas").textContent=n;document.getElementById("statAtivas").textContent=rem;document.getElementById("headerApplied").textContent="APLICADAS: "+n+" / "+JOBS.length;}
+var chartBars=document.getElementById("chartBars");
+var sorted=JOBS.slice().sort(function(a,b){return b.aderencia-a.aderencia;});
+sorted.forEach(function(j){var row=document.createElement("div");row.className="chart-row";row.innerHTML="<div class=\"chart-label\">"+j.title.substring(0,24)+"</div><div class=\"chart-bar-wrap\"><div class=\"chart-bar-fill\" style=\"width:"+j.aderencia+"%;background:linear-gradient(90deg,"+j.color+"44,"+j.color+");color:#fff\">"+j.aderencia+"%</div></div>";chartBars.appendChild(row);});
+var grid=document.getElementById("jobsGrid");
+JOBS.forEach(function(j,i){
+  var filled=CIRC*(j.aderencia/100);
+  var card=document.createElement("div");
+  card.className="job-card"+(j.top?" top-pick":"");
+  card.setAttribute("data-cardidx",i);
+  card.innerHTML=(j.top?"<div class=\"top-badge\">&#11088; TOP PICK</div>":"")+
+    "<div class=\"job-header\"><div class=\"job-num\">#"+j.num+"</div><div><div class=\"job-title\">"+j.title+"</div><div class=\"job-company\">"+j.company+"</div></div></div>"+
+    "<div class=\"job-meta\"><span class=\"meta-pill\"><span class=\"dot\"></span>"+j.local+"</span><span class=\"meta-pill\"><span class=\"dot\"></span>"+j.fonte+"</span><span class=\"meta-pill\"><span class=\"dot\"></span>"+j.salario+"</span><span class=\"meta-pill\"><span class=\"dot\"></span>"+j.data+"</span></div>"+
+    "<div class=\"job-desc\">"+j.desc+"</div>"+
+    "<div class=\"job-footer\"><div class=\"aderencia-wrap\"><div class=\"aderencia-gauge\"><svg width=\"50\" height=\"50\" viewBox=\"0 0 50 50\"><circle class=\"gauge-bg\" cx=\"25\" cy=\"25\" r=\"20\"/><circle class=\"gauge-fill\" cx=\"25\" cy=\"25\" r=\"20\" stroke=\""+j.color+"\" stroke-dasharray=\""+(CIRC*(j.aderencia/100)).toFixed(2)+" "+(CIRC-(CIRC*(j.aderencia/100))).toFixed(2)+"\" stroke-dashoffset=\"0\"/></svg><div class=\"gauge-label\" style=\"color:"+j.color+"\">"+j.aderencia+"%<span>match</span></div></div><div class=\"aderencia-text\">"+j.motivo+"</div></div>"+
+    "<div class=\"job-actions\"><button class=\"btn btn-cv\" data-idx=\""+i+"\" data-act=\"cv\">&#128196; Curriculo</button><button class=\"btn btn-link\" data-idx=\""+i+"\" data-act=\"link\">&#8599; Ver Vaga</button><button class=\"btn btn-applied\" data-idx=\""+i+"\" data-act=\"applied\">&#10003; Aplicado</button></div></div>";
+  grid.appendChild(card);
+  cardEls.push(card);
+});
+function markApplied(card){card.classList.add("applied-card");if(!card.querySelector(".applied-stamp")){var s=document.createElement("div");s.className="applied-stamp";s.textContent="APLICADO";card.appendChild(s);}}
+(function(){var a=loadApplied();a.forEach(function(idx){if(cardEls[idx])markApplied(cardEls[idx]);});updateCounters();})();
+grid.addEventListener("click",function(e){var btn=e.target.closest("[data-act]");if(!btn)return;var idx=parseInt(btn.getAttribute("data-idx"),10);var act=btn.getAttribute("data-act");if(act==="link"){window.open(JOBS[idx].link,"_blank");}else if(act==="cv"){handleCV(idx);}else if(act==="applied"){handleApplied(idx,btn);}});
+function handleApplied(idx,btn){var a=loadApplied();if(a.indexOf(idx)!==-1)return;a.push(idx);saveApplied(a);var m=loadMeta();m[idx]={idx:idx,title:JOBS[idx].title,company:JOBS[idx].company,fonte:JOBS[idx].fonte,aderencia:JOBS[idx].aderencia,salario:JOBS[idx].salario,link:JOBS[idx].link,appliedAt:new Date().toLocaleDateString("pt-BR"),status:"Aguardando retorno"};saveMeta(m);markApplied(cardEls[idx]);updateCounters();btn.textContent="Registrado!";}
+var lastContent="";
+function openModal(title){document.getElementById("modalType").textContent="CURRICULO MOLDADO";document.getElementById("modalTitle").textContent=title;document.getElementById("modalBody").innerHTML="<div class=\"loading-state\"><div class=\"loading-ring\"></div><div class=\"loading-text\">JARVIS PROCESSANDO...</div><div class=\"loading-sub\">Moldando curriculo para esta vaga</div></div>";document.getElementById("modalFooter").style.display="none";document.getElementById("modalOverlay").classList.add("open");}
+function showResult(text){lastContent=text;var box=document.createElement("div");box.className="result-box";box.textContent=text;var body=document.getElementById("modalBody");body.innerHTML="";body.appendChild(box);document.getElementById("modalFooter").style.display="flex";}
+function closeModal(){document.getElementById("modalOverlay").classList.remove("open");}
+document.getElementById("btnCloseTop").addEventListener("click",closeModal);
+document.getElementById("btnCloseBot").addEventListener("click",closeModal);
+document.getElementById("modalOverlay").addEventListener("click",function(e){if(e.target===this)closeModal();});
+document.getElementById("btnCopy").addEventListener("click",function(){try{navigator.clipboard.writeText(lastContent);}catch(e){}var b=this;b.textContent="Copiado!";setTimeout(function(){b.textContent="Copiar";},2000);});
+function handleCV(idx){
+  var j=JOBS[idx];
+  openModal(j.title+" - "+j.company);
+  var p=[
+    "Otimize o curriculo para a vaga. Seja conciso. NAO invente experiencias.",
+    "CANDIDATO: Thiago Soliani de Mascena | 20 anos | Sao Paulo SP",
+    "EXPERIENCIAS:",
+    "- Grupo Iguatemi (2022-2026): Co-liderou Casa Higienopolis espaco premium de eventos. Marcas: Prada, Dolce Gabbana, Macallan, Belmond, Samsung, Lacoste.",
+    "- Blacksmith Mental Works (2020-2022): Fundador e consultor B2B e B2C.",
+    "- Grupo Benassi (2017-2018): Gerente de Marketing.",
+    "- Brain Trust Consulting (2016-2017): Consultor Senior de Inteligencia de Mercado.",
+    "- General Optical Grupo GO (2010-2014): Coord. Trade Marketing e Merchandising. Marcas: Cartier, Mercedes-Benz, Speedo, Ana Hickmann.",
+    "- Nadir Figueiredo (2007-2010): Analista de Marketing Pleno.",
+    "FORMACAO: Pos-Grad Comunicacao e Marketing USP; Adm FMU. Ingles avancado. Certs: Sports Marketing Northwestern; Scrum PO FM2S.",
+    "VAGA ALVO: "+j.title+" | "+j.company,
+    "O que mais importa: "+j.motivo,
+    "GERE EM PORTUGUES BRASILEIRO:",
+    "1. HEADLINE: 2 linhas posicionando o candidato para este cargo.",
+    "2. EXPERIENCIAS: bullets com verbos de acao fortes priorizando o relevante para ESTA vaga.",
+    "3. COMPETENCIAS-CHAVE: 6 competencias priorizadas.",
+    "4. DIFERENCIAL: paragrafo curto com 2-3 pontos unicos do candidato para esta vaga.",
+    "Formato pronto para copiar em Word."
+  ];
+  fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","anthropic-version":"2023-06-01"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:800,messages:[{role:"user",content:p.join("\n")}]})}).then(function(r){return r.json();}).then(function(d){showResult((d.content&&d.content[0]&&d.content[0].text)||JSON.stringify(d));}).catch(function(e){showResult("Erro: "+e.message);});
+}
+</script></script>
+</body>
+</html>
