@@ -199,21 +199,38 @@ var JOBS=[
   {num:"17",top:false,title:"Gerente Mkt Distribuicao Bebidas",company:"Distribuidora Nacional Robert Half",fonte:"Robert Half",local:"Sao Paulo SP - Hibrido",salario:"A combinar",data:"Mar/2026",link:"https://www.roberthalf.com/br/pt/vagas/all/gerente-marketing",aderencia:63,color:"#003d44",motivo:"Marketing de produto e canal - experiencia com portfolio de marcas premium e distribuicao.",desc:"Liderar estrategia de marketing e expansao do canal off trade com foco em emporios e atacadistas."},
   {num:"18",top:false,title:"Gerente de Marketing Farma",company:"Cimed Farmaceutica",fonte:"Glassdoor",local:"Sao Paulo SP - Hibrido",salario:"A combinar",data:"Mar/2026",link:"https://www.glassdoor.com.br/Vaga/sao-paulo-gerente-de-trade-marketing",aderencia:60,color:"#003344",motivo:"Trade Marketing em grande farmaceutica - perfil senior que o Thiago oferece e diferencial.",desc:"Proporcionar saude e bem-estar liderando Trade Marketing e ativacoes nacionais para portfolio Cimed."},
   {num:"19",top:false,title:"Gerente de Marketing",company:"Mattos Filho Advogados",fonte:"Gupy",local:"Sao Paulo SP - Presencial",salario:"A combinar",data:"Fev-Mar/2026",link:"https://mattosfilho.gupy.io/jobs/9916697",aderencia:62,color:"#003d55",motivo:"Branding institucional e eventos de alto padrao sao atrativos - setor juridico e diferente.",desc:"Gestao de marketing do Top 200 Global com foco em branding comunicacao e posicionamento institucional."},
-  {num:"20",top:false,title:"Gerente de Marketing Growth",company:"Rede Decisao Educacao",fonte:"Gupy",local:"Sao Paulo SP - Presencial",salario:"A combinar",data:"Mar/2026",link:"https://vemprarededecisao.gupy.io/jobs/9099204",aderencia:58,color:"#003344",motivo:"Gestao de times e campanhas integradas se alinham - foco em captacao de alunos difere do core.",desc:"Liderar estrategia de marketing para captacao e retencao de alunos em rede de escolas em Sao Paulo."},
+  {num:"20",top:false,title:"Gerente de Marketing Growth",company:"Rede Decisao Educacao",fonte:"Gupy",local:"Sao Paulo SP - Presencial",salario:"A combinar",data:"Mar/2026",link:"https://vemprarededecisao.gupy.io/jobs/9099204",aderencia:58,color:"#003344",motivo:"Gestao de times e campanhas integradas se alinham - foco em captacao de alunos difere do core.",desc:"Liderar estrategia de marketing para captacao e retencao de alunos em rede de escolas em Sao Paulo."}
 ];
 
 var CIRC=Math.PI*2*22;
 var cardEls=[];
-var STORAGE_KEY="jarvis_v2_applied";
-var STORAGE_META="jarvis_v2_meta";
-function loadApplied(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||[];}catch(e){return[];}}
-function saveApplied(a){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(a));}catch(e){}}
-function loadMeta(){try{return JSON.parse(localStorage.getItem(STORAGE_META))||{};}catch(e){return{};}}
-function saveMeta(m){try{localStorage.setItem(STORAGE_META,JSON.stringify(m));}catch(e){}}
-function updateCounters(){var a=loadApplied();var n=a.length;var rem=JOBS.length-n;document.getElementById("appliedNum").textContent=n;document.getElementById("statAplicadas").textContent=n;document.getElementById("statAtivas").textContent=rem;document.getElementById("headerApplied").textContent="APLICADAS: "+n+" / "+JOBS.length;}
+var SK="jarvis_v2_applied";
+var SM="jarvis_v2_meta";
+var AK="jarvis_api_key";
+
+function loadApplied(){try{return JSON.parse(localStorage.getItem(SK))||[];}catch(e){return[];}}
+function saveApplied(a){try{localStorage.setItem(SK,JSON.stringify(a));}catch(e){}}
+function loadMeta(){try{return JSON.parse(localStorage.getItem(SM))||{};}catch(e){return{};}}
+function saveMeta(m){try{localStorage.setItem(SM,JSON.stringify(m));}catch(e){}}
+function getApiKey(){return localStorage.getItem(AK)||"";}
+function saveApiKey(k){localStorage.setItem(AK,k);}
+
+function updateCounters(){
+  var a=loadApplied();var n=a.length;var rem=JOBS.length-n;
+  document.getElementById("appliedNum").textContent=n;
+  document.getElementById("statAplicadas").textContent=n;
+  document.getElementById("statAtivas").textContent=rem;
+  document.getElementById("headerApplied").textContent="APLICADAS: "+n+" / "+JOBS.length;
+}
+
 var chartBars=document.getElementById("chartBars");
 var sorted=JOBS.slice().sort(function(a,b){return b.aderencia-a.aderencia;});
-sorted.forEach(function(j){var row=document.createElement("div");row.className="chart-row";row.innerHTML="<div class=\"chart-label\">"+j.title.substring(0,24)+"</div><div class=\"chart-bar-wrap\"><div class=\"chart-bar-fill\" style=\"width:"+j.aderencia+"%;background:linear-gradient(90deg,"+j.color+"44,"+j.color+");color:#fff\">"+j.aderencia+"%</div></div>";chartBars.appendChild(row);});
+sorted.forEach(function(j){
+  var row=document.createElement("div");row.className="chart-row";
+  row.innerHTML="<div class=\"chart-label\">"+j.title.substring(0,24)+"</div><div class=\"chart-bar-wrap\"><div class=\"chart-bar-fill\" style=\"width:"+j.aderencia+"%;background:linear-gradient(90deg,"+j.color+"44,"+j.color+");color:#fff\">"+j.aderencia+"%</div></div>";
+  chartBars.appendChild(row);
+});
+
 var grid=document.getElementById("jobsGrid");
 JOBS.forEach(function(j,i){
   var filled=CIRC*(j.aderencia/100);
@@ -229,22 +246,78 @@ JOBS.forEach(function(j,i){
   grid.appendChild(card);
   cardEls.push(card);
 });
-function markApplied(card){card.classList.add("applied-card");if(!card.querySelector(".applied-stamp")){var s=document.createElement("div");s.className="applied-stamp";s.textContent="APLICADO";card.appendChild(s);}}
+
+function markApplied(card){
+  card.classList.add("applied-card");
+  if(!card.querySelector(".applied-stamp")){
+    var s=document.createElement("div");s.className="applied-stamp";s.textContent="APLICADO";card.appendChild(s);
+  }
+}
 (function(){var a=loadApplied();a.forEach(function(idx){if(cardEls[idx])markApplied(cardEls[idx]);});updateCounters();})();
-grid.addEventListener("click",function(e){var btn=e.target.closest("[data-act]");if(!btn)return;var idx=parseInt(btn.getAttribute("data-idx"),10);var act=btn.getAttribute("data-act");if(act==="link"){window.open(JOBS[idx].link,"_blank");}else if(act==="cv"){handleCV(idx);}else if(act==="applied"){handleApplied(idx,btn);}});
-function handleApplied(idx,btn){var a=loadApplied();if(a.indexOf(idx)!==-1)return;a.push(idx);saveApplied(a);var m=loadMeta();m[idx]={idx:idx,title:JOBS[idx].title,company:JOBS[idx].company,fonte:JOBS[idx].fonte,aderencia:JOBS[idx].aderencia,salario:JOBS[idx].salario,link:JOBS[idx].link,appliedAt:new Date().toLocaleDateString("pt-BR"),status:"Aguardando retorno"};saveMeta(m);markApplied(cardEls[idx]);updateCounters();btn.textContent="Registrado!";}
+
+grid.addEventListener("click",function(e){
+  var btn=e.target.closest("[data-act]");if(!btn)return;
+  var idx=parseInt(btn.getAttribute("data-idx"),10);
+  var act=btn.getAttribute("data-act");
+  if(act==="link"){window.open(JOBS[idx].link,"_blank");}
+  else if(act==="cv"){handleCV(idx);}
+  else if(act==="applied"){handleApplied(idx,btn);}
+});
+
+function handleApplied(idx,btn){
+  var a=loadApplied();if(a.indexOf(idx)!==-1)return;
+  a.push(idx);saveApplied(a);
+  var m=loadMeta();
+  m[idx]={idx:idx,title:JOBS[idx].title,company:JOBS[idx].company,fonte:JOBS[idx].fonte,aderencia:JOBS[idx].aderencia,salario:JOBS[idx].salario,link:JOBS[idx].link,appliedAt:new Date().toLocaleDateString("pt-BR"),status:"Aguardando retorno"};
+  saveMeta(m);markApplied(cardEls[idx]);updateCounters();btn.textContent="Registrado!";
+}
+
 var lastContent="";
-function openModal(title){document.getElementById("modalType").textContent="CURRICULO MOLDADO";document.getElementById("modalTitle").textContent=title;document.getElementById("modalBody").innerHTML="<div class=\"loading-state\"><div class=\"loading-ring\"></div><div class=\"loading-text\">JARVIS PROCESSANDO...</div><div class=\"loading-sub\">Moldando curriculo para esta vaga</div></div>";document.getElementById("modalFooter").style.display="none";document.getElementById("modalOverlay").classList.add("open");}
-function showResult(text){lastContent=text;var box=document.createElement("div");box.className="result-box";box.textContent=text;var body=document.getElementById("modalBody");body.innerHTML="";body.appendChild(box);document.getElementById("modalFooter").style.display="flex";}
+
+function openModal(title){
+  document.getElementById("modalType").textContent="CURRICULO MOLDADO";
+  document.getElementById("modalTitle").textContent=title;
+  document.getElementById("modalBody").innerHTML="<div class=\"loading-state\"><div class=\"loading-ring\"></div><div class=\"loading-text\">JARVIS PROCESSANDO...</div><div class=\"loading-sub\">Moldando curriculo para esta vaga</div></div>";
+  document.getElementById("modalFooter").style.display="none";
+  document.getElementById("modalOverlay").classList.add("open");
+}
+
+function showResult(text){
+  lastContent=text;
+  var box=document.createElement("div");box.className="result-box";box.textContent=text;
+  var body=document.getElementById("modalBody");body.innerHTML="";body.appendChild(box);
+  document.getElementById("modalFooter").style.display="flex";
+}
+
+function showError(msg){
+  document.getElementById("modalBody").innerHTML="<div class=\"result-box\" style=\"border-color:rgba(255,80,80,0.4);color:#ff8888\">"+msg+"</div>";
+  document.getElementById("modalFooter").style.display="flex";
+}
+
 function closeModal(){document.getElementById("modalOverlay").classList.remove("open");}
 document.getElementById("btnCloseTop").addEventListener("click",closeModal);
 document.getElementById("btnCloseBot").addEventListener("click",closeModal);
 document.getElementById("modalOverlay").addEventListener("click",function(e){if(e.target===this)closeModal();});
-document.getElementById("btnCopy").addEventListener("click",function(){try{navigator.clipboard.writeText(lastContent);}catch(e){}var b=this;b.textContent="Copiado!";setTimeout(function(){b.textContent="Copiar";},2000);});
+document.getElementById("btnCopy").addEventListener("click",function(){
+  try{navigator.clipboard.writeText(lastContent);}catch(e){}
+  var b=this;b.textContent="Copiado!";setTimeout(function(){b.textContent="Copiar";},2000);
+});
+
+function promptApiKey(){
+  var k=window.prompt("Cole sua Anthropic API Key (sk-ant-...):");
+  if(k&&k.indexOf("sk-ant")===0){saveApiKey(k);return k;}
+  return null;
+}
+
 function handleCV(idx){
   var j=JOBS[idx];
+  var apiKey=getApiKey();
+  if(!apiKey){
+    apiKey=promptApiKey();
+    if(!apiKey){showError("API Key nao informada. Digite sua chave Anthropic para continuar.");return;}
+  }
   openModal(j.title+" - "+j.company);
-  var p=[
+  var prompt=[
     "Otimize o curriculo para a vaga. Seja conciso. NAO invente experiencias.",
     "CANDIDATO: Thiago Soliani de Mascena | 20 anos | Sao Paulo SP",
     "EXPERIENCIAS:",
@@ -263,8 +336,24 @@ function handleCV(idx){
     "3. COMPETENCIAS-CHAVE: 6 competencias priorizadas.",
     "4. DIFERENCIAL: paragrafo curto com 2-3 pontos unicos do candidato para esta vaga.",
     "Formato pronto para copiar em Word."
-  ];
-  fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:800,messages:[{role:"user",content:p.join("\n")}]})}).then(function(r){return r.json();}).then(function(d){showResult((d.content&&d.content[0]&&d.content[0].text)||JSON.stringify(d));}).catch(function(e){showResult("Erro: "+e.message);});
+  ].join("\n");
+  fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "anthropic-version":"2023-06-01",
+      "anthropic-dangerous-direct-browser-access":"true",
+      "x-api-key":apiKey
+    },
+    body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:800,messages:[{role:"user",content:prompt}]})
+  }).then(function(r){
+    if(r.status===401){localStorage.removeItem(AK);showError("API Key invalida. Recarregue a pagina e tente novamente.");return null;}
+    return r.json();
+  }).then(function(d){
+    if(!d)return;
+    var text=d.content&&d.content[0]&&d.content[0].text;
+    if(text){showResult(text);}else{showError("Erro na resposta: "+JSON.stringify(d));}
+  }).catch(function(e){showError("Erro de conexao: "+e.message);});
 }
 </script></script>
 </body>
