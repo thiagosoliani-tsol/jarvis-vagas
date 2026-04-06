@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JARVIS | Agente de Vagas — Abril 2026</title>
+  <style>
+    :root {
+      --bg: #0a0f1e; --card: #0e1628; --border: #1e2d50;
+      --accent: #00c8ff; --accent2: #7b5cff; --text: #cdd9f5;
+      --muted: #6b7fa8; --green: #00e5a0; --red: #ff4d6d; --yellow: #ffd166;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+    header {
+      background: linear-gradient(135deg, #0d1b3e, #091229);
+      border-bottom: 1px solid var(--border); padding: 20px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 24px rgba(0,200,255,0.06);
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon {
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;
+    }
+    .logo h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 2px; color: var(--accent); text-shadow: 0 0 20px rgba(0,200,255,0.4); }
+    .logo p { font-size: 0.72rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+    .header-stats { display: flex; gap: 20px; }
+    .stat-badge { background: rgba(0,200,255,0.06); border: 1px solid rgba(0,200,255,0.15); border-radius: 10px; padding: 8px 16px; text-align: center; }
+    .stat-badge span { display: block; }
+    .stat-badge .num { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+    .stat-badge .lbl { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .filters { padding: 16px 32px; display: flex; gap: 10px; flex-wrap: wrap; border-bottom: 1px solid var(--border); background: rgba(14,22,40,0.8); }
+    .filter-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.78rem; transition: all 0.2s; }
+    .filter-btn:hover, .filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,200,255,0.08); }
+    main { padding: 28px 32px; }
+    .section-title { font-size: 0.7rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; }
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 20px; display: flex; flex-direction: column; gap: 14px;
+      transition: all 0.25s; position: relative; overflow: hidden;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%;
+      background: linear-gradient(to bottom, var(--accent), var(--accent2)); opacity: 0; transition: opacity 0.25s;
+    }
+    .card:hover { border-color: rgba(0,200,255,0.3); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+    .card:hover::before { opacity: 1; }
+    .card.aplicado { border-color: rgba(0,229,160,0.3); }
+    .card.aplicado::before { background: linear-gradient(to bottom, var(--green), #00b37e); opacity: 1; }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .card-num { font-size: 0.65rem; color: var(--accent); background: rgba(0,200,255,0.1); border: 1px solid rgba(0,200,255,0.2); border-radius: 6px; padding: 2px 8px; font-weight: 600; white-space: nowrap; }
+    .card-badge { font-size: 0.62rem; padding: 3px 10px; border-radius: 20px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+    .badge-senior { background: rgba(123,92,255,0.15); color: var(--accent2); border: 1px solid rgba(123,92,255,0.3); }
+    .badge-pleno  { background: rgba(0,200,255,0.1);   color: var(--accent);  border: 1px solid rgba(0,200,255,0.25); }
+    .badge-junior { background: rgba(255,209,102,0.1); color: var(--yellow);  border: 1px solid rgba(255,209,102,0.25); }
+    .badge-coord  { background: rgba(0,229,160,0.1);   color: var(--green);   border: 1px solid rgba(0,229,160,0.25); }
+    .badge-gestao { background: rgba(255,77,109,0.1);  color: var(--red);     border: 1px solid rgba(255,77,109,0.25); }
+    .card-title { font-size: 0.98rem; font-weight: 700; line-height: 1.35; color: #e8eeff; }
+    .card-company { font-size: 0.82rem; color: var(--accent); font-weight: 600; }
+    .card-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+    .meta-tag { font-size: 0.72rem; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+    .card-salary { font-size: 0.85rem; font-weight: 700; color: var(--green); }
+    .card-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.6; border-top: 1px solid var(--border); padding-top: 10px; }
+    .card-actions { display: flex; gap: 8px; margin-top: auto; }
+    .btn { flex: 1; padding: 9px 0; border-radius: 8px; border: none; cursor: pointer; font-size: 0.75rem; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px; }
+    .btn-ver { background: linear-gradient(135deg, var(--accent), #0090cc); color: #000; }
+    .btn-ver:hover { opacity: 0.85; }
+    .btn-aplicado { background: var(--bg); border: 1px solid var(--border); color: var(--muted); }
+    .btn-aplicado:hover { border-color: var(--green); color: var(--green); }
+    .btn-aplicado.done { background: rgba(0,229,160,0.12); border-color: var(--green); color: var(--green); }
+    .btn-cv { background: var(--bg); border: 1px solid var(--border); color: var(--muted); }
+    .btn-cv:hover { border-color: var(--accent2); color: var(--accent2); }
+    .ribbon { position: absolute; top: 12px; right: -22px; background: var(--green); color: #000; font-size: 0.6rem; font-weight: 800; padding: 3px 28px; transform: rotate(35deg); letter-spacing: 1px; display: none; }
+    .card.aplicado .ribbon { display: block; }
+    footer { text-align: center; padding: 20px; font-size: 0.7rem; color: var(--muted); border-top: 1px solid var(--border); margin-top: 20px; }
+    @media (max-width: 600px) { header { flex-direction: column; gap: 12px; } main { padding: 16px; } .filters { padding: 12px 16px; } }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🤖</div>
+    <div>
+      <h1>JARVIS</h1>
+      <p>Agente de Vagas · Thiago Soliani · Abril 2026</p>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div class="stat-badge"><span class="num" id="total-vagas">20</span><span class="lbl">Vagas</span></div>
+    <div class="stat-badge"><span class="num" id="total-aplicados">0</span><span class="lbl">Aplicados</span></div>
+    <div class="stat-badge"><span class="num">SP</span><span class="lbl">Cidade</span></div>
+  </div>
+</header>
+
+<div class="filters">
+  <button class="filter-btn active" onclick="filtrar('todos',this)">Todos</button>
+  <button class="filter-btn" onclick="filtrar('gestao',this)">Gestão</button>
+  <button class="filter-btn" onclick="filtrar('coord',this)">Coordenação</button>
+  <button class="filter-btn" onclick="filtrar('senior',this)">Sênior</button>
+  <button class="filter-btn" onclick="filtrar('pleno',this)">Pleno</button>
+  <button class="filter-btn" onclick="filtrar('junior',this)">Júnior</button>
+  <button class="filter-btn" onclick="filtrar('aplicado',this)">✅ Aplicados</button>
+</div>
+
+<main>
+  <p class="section-title">📡 Vagas validadas · Sem duplicatas · Março–Abril 2026 · São Paulo, SP</p>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>JARVIS Agente de Vagas · Sistema autônomo de monitoramento de oportunidades · São Paulo 2026</footer>
+
+<script>
+const vagas = [
+  { id:1,  titulo:"Coordenador de Marketing Digital",              empresa:"My Brain Fit Life (via Jobbol)", local:"Itaim Bibi, SP",  modelo:"Presencial",       salario:"R$ 10.000/mês",           nivel:"coord",  postedAt:"25/03/2026", desc:"Liderar estratégias de marketing digital, gestão de campanhas pagas, SEO e redes sociais para empresa de saúde e bem-estar.",                              url:"https://to.indeed.com/aay2cvzrffrn" },
+  { id:2,  titulo:"Analista de Marketing Digital Pleno",           empresa:"Grupo Suno (Status Invest)",    local:"São Paulo, SP",    modelo:"Híbrido",           salario:"A combinar",               nivel:"pleno",  postedAt:"31/03/2026", desc:"Estratégias de performance digital, mídia paga, inbound e análise de dados para plataforma líder em finanças e investimentos.",                           url:"https://to.indeed.com/aa6hyxyp7mzs" },
+  { id:3,  titulo:"Analista de Marketing Digital Sênior",          empresa:"Eurofarma",                     local:"São Paulo, SP",    modelo:"Híbrido",           salario:"A combinar",               nivel:"senior", postedAt:"23/03/2026", desc:"Planejamento e execução de campanhas digitais, gestão de LinkedIn Analytics, Meta Business e automação de marketing para grande farmacêutica.",             url:"https://to.indeed.com/aaxd8nfysj26" },
+  { id:4,  titulo:"Gerente de Growth Marketing",                   empresa:"Arista Digital",                local:"São Paulo, SP",    modelo:"Remoto",            salario:"R$ 17.000/mês",           nivel:"gestao", postedAt:"10/03/2026", desc:"Liderar estratégias de crescimento acelerado, CRM, aquisição de clientes e análise de funil de conversão.",                                               url:"https://to.indeed.com/aarrbl7nxdyf" },
+  { id:5,  titulo:"Coordenador de Marketing (Branding)",           empresa:"Maple Bear",                    local:"São Paulo, SP",    modelo:"Presencial",       salario:"A combinar",               nivel:"coord",  postedAt:"12/03/2026", desc:"Coordenar estratégia de branding e comunicação para rede de escolas bilíngues. Foco em posicionamento de marca e campanhas integradas.",                 url:"https://to.indeed.com/aaytrxtdp2wp" },
+  { id:6,  titulo:"Coordenador(a) de Marketing",                   empresa:"Grupo Farmax",                  local:"São Paulo, SP",    modelo:"Híbrido",           salario:"A combinar",               nivel:"coord",  postedAt:"27/03/2026", desc:"Liderar área de marketing de empresa farmacêutica. Gestão de portfólio, campanhas 360° e interface com agências parceiras.",                               url:"https://to.indeed.com/aard287z6dgf" },
+  { id:7,  titulo:"Analista de Marketing Digital Sênior",          empresa:"Mevo",                          local:"São Paulo, SP",    modelo:"Remoto",            salario:"A combinar",               nivel:"senior", postedAt:"13/02/2026", desc:"Gestão de campanhas de performance, análise de dados, CRM e automação para startup de mobilidade urbana. Diferente da #3 por ser tech/startup.",         url:"https://to.indeed.com/aablgw7jk88l" },
+  { id:8,  titulo:"Coordenador de Marketing",                      empresa:"Web Service",                   local:"São Paulo, SP",    modelo:"Híbrido",           salario:"R$ 6.000/mês",            nivel:"coord",  postedAt:"19/03/2026", desc:"Planejar e executar ações de marketing digital, redes sociais e conteúdo para empresa de tecnologia e serviços.",                                           url:"https://to.indeed.com/aa726ckgvh6g" },
+  { id:9,  titulo:"Analista de Marketing Comunicação Sênior",      empresa:"Saint-Gobain",                  local:"São Paulo, SP",    modelo:"Híbrido",           salario:"A combinar",               nivel:"senior", postedAt:"25/03/2026", desc:"Desenvolver estratégias de comunicação corporativa, materiais institucionais e gestão de marca para multinacional francesa.",                              url:"https://to.indeed.com/aa9l8m2qnhkb" },
+  { id:10, titulo:"Coordenador de Trade Marketing – Confectionery", empresa:"Nestlé",                       local:"São Paulo, SP",    modelo:"Presencial",       salario:"A combinar",               nivel:"coord",  postedAt:"18/03/2026", desc:"Coordenar plano de Trade Marketing para categoria de chocolates e confeitos, atuando no impulso de vendas e ativação de PDV.",                              url:"https://to.indeed.com/aa4pdqny2r8q" },
+  { id:11, titulo:"Gerente de Trade Marketing",                     empresa:"Lenovo",                        local:"São Paulo, SP",    modelo:"Híbrido",           salario:"A combinar",               nivel:"gestao", postedAt:"16/03/2026", desc:"Liderar estratégia de Trade Marketing para a linha de produtos Lenovo no Brasil, com gestão de equipe e KPIs de resultado.",                               url:"https://to.indeed.com/aaxjdsjvk7sm" },
+  { id:12, titulo:"Gerente de Marketing Regional",                  empresa:"Alqia",                         local:"São Paulo, SP",    modelo:"Híbrido",           salario:"A combinar",               nivel:"gestao", postedAt:"26/03/2026", desc:"Liderar marketing regional, desenvolvimento de campanhas, posicionamento e relacionamento com parceiros estratégicos.",                                      url:"https://to.indeed.com/aadgxz6y7qdj" },
+  { id:13, titulo:"Coordenador de Marketing Cardiometabolismo",     empresa:"Eli Lilly",                     local:"São Paulo, SP",    modelo:"Híbrido",           salario:"A combinar",               nivel:"coord",  postedAt:"31/03/2026", desc:"Coordenar estratégia de marketing para linha cardiometabólica em uma das maiores farmacêuticas do mundo.",                                                  url:"https://to.indeed.com/aadq4yfm2xvg" },
+  { id:14, titulo:"Analista de Comunicação SR – RP e Redes Sociais", empresa:"Copersucar",                  local:"São Paulo, SP",    modelo:"Presencial",       salario:"A combinar",               nivel:"senior", postedAt:"24/03/2026", desc:"Gestão estratégica de redes sociais institucionais, LinkedIn Analytics, relações com imprensa e comunicação corporativa.",                               url:"https://to.indeed.com/aap6gyt6pc4t" },
+  { id:15, titulo:"Digital Marketing Specialist",                   empresa:"HIGH TIDE",                     local:"São Paulo, SP",    modelo:"Remoto / Contrato", salario:"A combinar",               nivel:"senior", postedAt:"22/01/2026", desc:"Especialista em marketing digital para empresa internacional. Gestão de campanhas, SEO, conteúdo e analytics em inglês.",                                  url:"https://to.indeed.com/aa78t76mlc6w" },
+  { id:16, titulo:"Analista de Marketing Júnior – Conteúdo Digital", empresa:"AGMOV",                       local:"Ipiranga, SP",     modelo:"Presencial",       salario:"A combinar",               nivel:"junior", postedAt:"28/03/2026", desc:"Criação e gestão de conteúdo para redes sociais (YouTube e TikTok), edição de vídeos com CapCut e Premiere.",                                              url:"https://consultevagas.wordpress.com/2026/03/28/sp-analista-de-marketing-junior/" },
+  { id:17, titulo:"Coordenador de Visual Merchandising",            empresa:"99jobs.com",                    local:"São Paulo, SP",    modelo:"Presencial",       salario:"A combinar",               nivel:"coord",  postedAt:"25/03/2026", desc:"Coordenar identidade visual nos pontos de venda, campanhas de branding e ativações no varejo.",                                                              url:"https://to.indeed.com/aagyyjrt97yf" },
+  { id:18, titulo:"Chief Marketing Officer (CMO)",                  empresa:"TAQAR CONSULTING CO.",          local:"São Paulo, SP",    modelo:"Híbrido",           salario:"A combinar",               nivel:"gestao", postedAt:"26/03/2026", desc:"Liderar toda a estratégia de marketing, construção de marca, growth e equipes multidisciplinares.",                                                          url:"https://to.indeed.com/aarj9yhmbchb" },
+  { id:19, titulo:"Especialista de Marketing (Comunicação B2B)",    empresa:"Alloha Fibra",                  local:"São Paulo, SP",    modelo:"Presencial",       salario:"A combinar",               nivel:"senior", postedAt:"20/02/2026", desc:"Desenvolver estratégias de comunicação B2B, geração de demanda, campanhas integradas e posicionamento de marca para empresa de telecom.",                  url:"https://to.indeed.com/aajf9vzxcdrx" },
+  { id:20, titulo:"Especialista de Marketing e Projetos",           empresa:"Prevent Senior",                local:"São Paulo, SP",    modelo:"Presencial",       salario:"A partir de R$ 7.000/mês", nivel:"senior", postedAt:"12/03/2026", desc:"Planejar e executar projetos de marketing para operadora de saúde. Gestão de campanhas, eventos e materiais institucionais.",                               url:"https://to.indeed.com/aa2cc8njbvjv" }
+];
+
+const nivelLabel = {
+  gestao:{label:"Gestão",cls:"badge-gestao"}, coord:{label:"Coord.",cls:"badge-coord"},
+  senior:{label:"Sênior",cls:"badge-senior"}, pleno:{label:"Pleno",cls:"badge-pleno"},
+  junior:{label:"Júnior",cls:"badge-junior"}
+};
+
+function getAplicados(){ try{ return JSON.parse(localStorage.getItem('jarvis_aplicados')||'{}'); }catch{ return {}; } }
+function saveAplicados(o){ localStorage.setItem('jarvis_aplicados', JSON.stringify(o)); }
+function updateContador(){ document.getElementById('total-aplicados').textContent = Object.values(getAplicados()).filter(Boolean).length; }
+
+let currentList = vagas;
+
+function renderCards(lista){
+  const grid = document.getElementById('grid');
+  const apl = getAplicados();
+  grid.innerHTML = '';
+  lista.forEach(v => {
+    const isApl = !!apl[v.id];
+    const nl = nivelLabel[v.nivel] || {label:v.nivel, cls:''};
+    const card = document.createElement('div');
+    card.className = 'card' + (isApl?' aplicado':'');
+    card.innerHTML = `
+      <div class="ribbon">APLICADO</div>
+      <div class="card-header">
+        <div class="card-num">#${String(v.id).padStart(2,'0')}</div>
+        <span class="card-badge ${nl.cls}">${nl.label}</span>
+      </div>
+      <div>
+        <div class="card-title">${v.titulo}</div>
+        <div class="card-company">${v.empresa}</div>
+      </div>
+      <div class="card-meta">
+        <span class="meta-tag">📍 ${v.local}</span>
+        <span class="meta-tag">💼 ${v.modelo}</span>
+        <span class="meta-tag">📅 ${v.postedAt}</span>
+      </div>
+      ${v.salario!=='A combinar'?`<div class="card-salary">💰 ${v.salario}</div>`:''}
+      <div class="card-desc">${v.desc}</div>
+      <div class="card-actions">
+        <button class="btn btn-ver" onclick="window.open('${v.url}','_blank')">🔗 Ver Vaga</button>
+        <button class="btn btn-aplicado ${isApl?'done':''}" onclick="toggleAplicado(${v.id})">${isApl?'✅ Aplicado':'⬜ Aplicado'}</button>
+        <button class="btn btn-cv" onclick="pedirCV(${v.id})">📄 CV</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+  updateContador();
+}
+
+function toggleAplicado(id){ const a=getAplicados(); a[id]=!a[id]; saveAplicados(a); renderCards(currentList); }
+function pedirCV(id){ const v=vagas.find(x=>x.id===id); alert(`📄 Para gerar currículo personalizado:\n\n"${v.titulo}" — ${v.empresa}\n\nDiga no chat JARVIS:\n"Gere currículo para a vaga #${String(id).padStart(2,'0')}"`); }
+
+function filtrar(tipo, btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const apl = getAplicados();
+  if(tipo==='todos') currentList=vagas;
+  else if(tipo==='aplicado') currentList=vagas.filter(v=>apl[v.id]);
+  else currentList=vagas.filter(v=>v.nivel===tipo);
+  renderCards(currentList);
+}
+
+renderCards(vagas);
+</script>
+</body>
+</html>
