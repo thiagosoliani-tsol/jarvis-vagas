@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS | Simulador de Investimentos</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #0f1425;
+    --bg3: #141929;
+    --card: #131827;
+    --card2: #1a2035;
+    --border: rgba(99,179,237,0.12);
+    --border2: rgba(99,179,237,0.22);
+    --accent: #63b3ed;
+    --accent2: #4299e1;
+    --green: #48bb78;
+    --green2: #38a169;
+    --amber: #ed8936;
+    --red: #fc8181;
+    --purple: #9f7aea;
+    --text: #e2e8f0;
+    --text2: #a0aec0;
+    --text3: #718096;
+    --glow: 0 0 20px rgba(99,179,237,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ââ HEADER ââ */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+  }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: rgba(99,179,237,0.1);
+    border: 1px solid rgba(99,179,237,0.3);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .logo span { color: var(--text2); font-weight: 300; }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 12px;
+    color: var(--text3);
+  }
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(72,187,120,0.08);
+    border: 1px solid rgba(72,187,120,0.2);
+    border-radius: 20px;
+    padding: 4px 10px;
+    color: var(--green);
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* ââ METRICS BAR ââ */
+  .metrics-bar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 32px;
+    display: flex;
+    gap: 32px;
+    overflow-x: auto;
+  }
+  .metric-item { display: flex; flex-direction: column; gap: 2px; white-space: nowrap; }
+  .metric-item-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .metric-item-val { font-size: 15px; font-weight: 600; }
+  .metric-item-val.g { color: var(--green); }
+  .metric-item-val.a { color: var(--amber); }
+  .metric-item-val.b { color: var(--accent); }
+  .metric-sep { width: 1px; background: var(--border); flex-shrink: 0; }
+
+  /* ââ LAYOUT ââ */
+  .main {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 0;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* ââ SIDEBAR ââ */
+  .sidebar {
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+  }
+  .sidebar-title {
+    font-size: 10px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .control-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ctrl-label {
+    font-size: 12px;
+    color: var(--text2);
+    font-weight: 500;
+  }
+  .input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 0 12px;
+    height: 40px;
+  }
+  .input-prefix { font-size: 13px; color: var(--text3); }
+  .input-wrap input[type=number] {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+  }
+  input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text3);
+    cursor: pointer;
+    transition: all .15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+  .chip.active {
+    background: rgba(99,179,237,0.12);
+    border-color: rgba(99,179,237,0.4);
+    color: var(--accent);
+  }
+  .chip.green-chip.active {
+    background: rgba(72,187,120,0.12);
+    border-color: rgba(72,187,120,0.4);
+    color: var(--green);
+  }
+
+  .divider { height: 1px; background: var(--border); }
+
+  .range-wrap { display: flex; flex-direction: column; gap: 6px; }
+  .range-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--text3); }
+  input[type=range] {
+    width: 100%;
+    height: 4px;
+    -webkit-appearance: none;
+    background: var(--bg3);
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 2px solid var(--bg2);
+  }
+
+  /* ââ CONTENT ââ */
+  .content {
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+  }
+
+  /* ââ WINNER CARD ââ */
+  .winner-section {
+    background: var(--card);
+    border: 1px solid rgba(72,187,120,0.3);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .winner-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--green), #68d391, var(--green));
+  }
+  .winner-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .winner-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(72,187,120,0.15);
+    border: 1px solid rgba(72,187,120,0.3);
+    color: var(--green);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .winner-name { font-size: 20px; font-weight: 600; color: var(--text); }
+  .winner-inst { font-size: 12px; color: var(--text3); margin-top: 3px; }
+  .winner-big {
+    text-align: right;
+  }
+  .winner-big-label { font-size: 11px; color: var(--text3); margin-bottom: 2px; }
+  .winner-big-val { font-size: 32px; font-weight: 700; color: var(--green); line-height: 1; }
+  .winner-big-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+  .winner-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 10px;
+  }
+  .wm {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .wm-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+  .wm-val { font-size: 16px; font-weight: 600; }
+  .wm-val.g { color: var(--green); }
+  .wm-val.b { color: var(--accent); }
+  .wm-val.a { color: var(--amber); }
+  .wm-val.w { color: var(--text); }
+
+  /* ââ TABLE SECTION ââ */
+  .table-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .table-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .table-topbar-title { font-size: 13px; font-weight: 500; color: var(--text2); }
+  .count-badge {
+    font-size: 11px;
+    background: rgba(99,179,237,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(99,179,237,0.2);
+    border-radius: 20px;
+    padding: 2px 9px;
+  }
+  .tbl-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead tr { border-bottom: 1px solid var(--border); }
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+  }
+  th.r { text-align: right; }
+  td { padding: 12px 14px; vertical-align: middle; border-bottom: 1px solid rgba(99,179,237,0.05); }
+  td.r { text-align: right; }
+  tr:last-child td { border-bottom: none; }
+  tr.best-row td { background: rgba(72,187,120,0.05); }
+  tr:hover td { background: rgba(99,179,237,0.04); cursor: pointer; }
+
+  .rank-num { font-size: 11px; color: var(--text3); font-weight: 500; }
+  .rank-num.t1 { color: var(--green); }
+  .rank-num.t2 { color: var(--accent); }
+  .rank-num.t3 { color: var(--amber); }
+
+  .asset-name { font-weight: 500; font-size: 13px; color: var(--text); }
+  .asset-inst { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .asset-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+
+  .tag {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .tag-baixo { background: rgba(72,187,120,0.12); color: #68d391; border: 1px solid rgba(72,187,120,0.2); }
+  .tag-medio { background: rgba(237,137,54,0.12); color: #f6ad55; border: 1px solid rgba(237,137,54,0.2); }
+  .tag-ir { background: rgba(99,179,237,0.1); color: #90cdf4; border: 1px solid rgba(99,179,237,0.2); }
+  .tag-isento { background: rgba(159,122,234,0.1); color: #b794f4; border: 1px solid rgba(159,122,234,0.2); }
+
+  .val-green { color: var(--green); font-weight: 600; }
+  .val-blue { color: var(--accent); font-weight: 500; }
+  .val-muted { color: var(--text2); }
+  .val-dim { color: var(--text3); }
+
+  .score-bar-wrap { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .score-bar-bg {
+    width: 64px; height: 4px;
+    background: var(--bg3);
+    border-radius: 2px; overflow: hidden;
+  }
+  .score-bar-fill { height: 100%; border-radius: 2px; }
+  .score-num { font-size: 11px; color: var(--text3); min-width: 26px; text-align: right; }
+
+  .liq-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    white-space: nowrap;
+  }
+
+  /* ââ CHART SECTION ââ */
+  .chart-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .chart-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .chart-title { font-size: 13px; font-weight: 500; color: var(--text2); }
+  .chart-legend { display: flex; flex-wrap: wrap; gap: 12px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text3); }
+  .legend-dot { width: 10px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ââ FOOTER ââ */
+  .disclaimer {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    padding: 10px 24px;
+    font-size: 10px;
+    color: var(--text3);
+    line-height: 1.6;
+  }
+
+  /* ââ scrollbar ââ */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">J</div>
+    JARVIS <span style="margin-left:2px">/ investimentos</span>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><div class="live-dot"></div> Dados ao vivo</div>
+    <span id="clock"></span>
+    <span style="color:var(--border2)">|</span>
+    <span>SÃ£o Paulo, BR</span>
+  </div>
+</header>
+
+<!-- METRICS BAR -->
+<div class="metrics-bar">
+  <div class="metric-item">
+    <span class="metric-item-label">Selic</span>
+    <span class="metric-item-val g">13,75% a.a.</span>
+  </div>
+  <div class="metric-sep"></div>
+  <div class="metric-item">
+    <span class="metric-item-label">CDI</span>
+    <span class="metric-item-val g">13,65% a.a.</span>
+  </div>
+  <div class="metric-sep"></div>
+  <div class="metric-item">
+    <span class="metric-item-label">IPCA 12m</span>
+    <span class="metric-item-val a">5,06%</span>
+  </div>
+  <div class="metric-sep"></div>
+  <div class="metric-item">
+    <span class="metric-item-label">Ibovespa</span>
+    <span class="metric-item-val b">134.820 pts</span>
+  </div>
+  <div class="metric-sep"></div>
+  <div class="metric-item">
+    <span class="metric-item-label">DÃ³lar</span>
+    <span class="metric-item-val a">R$ 5,87</span>
+  </div>
+  <div class="metric-sep"></div>
+  <div class="metric-item">
+    <span class="metric-item-label">PoupanÃ§a</span>
+    <span class="metric-item-val" style="color:var(--text3)">7,67% a.a.</span>
+  </div>
+  <div class="metric-sep"></div>
+  <div class="metric-item">
+    <span class="metric-item-label">Melhor RF isenta</span>
+    <span class="metric-item-val g">~15,02% a.a.</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-title">ParÃ¢metros da simulaÃ§Ã£o</div>
+
+    <div class="control-block">
+      <div class="ctrl-label">Valor inicial</div>
+      <div class="input-wrap">
+        <span class="input-prefix">R$</span>
+        <input type="number" id="valor" value="10000" min="0" step="500" oninput="calc()">
+      </div>
+    </div>
+
+    <div class="control-block">
+      <div class="ctrl-label">Aporte mensal</div>
+      <div class="input-wrap">
+        <span class="input-prefix">R$</span>
+        <input type="number" id="aporte" value="500" min="0" step="100" oninput="calc()">
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="control-block">
+      <div class="ctrl-label">PerÃ­odo</div>
+      <div class="chips">
+        <button class="chip" onclick="setPeriod(6,this)">6 meses</button>
+        <button class="chip active" onclick="setPeriod(12,this)">1 ano</button>
+        <button class="chip" onclick="setPeriod(24,this)">2 anos</button>
+        <button class="chip" onclick="setPeriod(36,this)">3 anos</button>
+        <button class="chip" onclick="setPeriod(60,this)">5 anos</button>
+        <button class="chip" onclick="setPeriod(120,this)">10 anos</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="control-block">
+      <div class="ctrl-label">Perfil de risco</div>
+      <div class="chips">
+        <button class="chip active" onclick="setRisco('baixo',this)">Baixo</button>
+        <button class="chip" onclick="setRisco('medio',this)">MÃ©dio</button>
+        <button class="chip" onclick="setRisco('todos',this)">Todos</button>
+      </div>
+    </div>
+
+    <div class="control-block">
+      <div class="ctrl-label">Considerar IR?</div>
+      <div class="chips">
+        <button class="chip active green-chip" onclick="setIR(true,this)" id="irSim">Sim (lÃ­quido)</button>
+        <button class="chip" onclick="setIR(false,this)" id="irNao">NÃ£o (bruto)</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="control-block">
+      <div class="ctrl-label">Categoria</div>
+      <div class="chips">
+        <button class="chip active" onclick="setCat('todas',this)">Todas</button>
+        <button class="chip" onclick="setCat('RF PÃºblica',this)">RF PÃºblica</button>
+        <button class="chip" onclick="setCat('RF Privada',this)">RF Privada</button>
+        <button class="chip" onclick="setCat('FII',this)">FII</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px">
+      <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Resumo da carteira</div>
+      <div style="display:flex;flex-direction:column;gap:6px" id="resumo-sidebar"></div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- WINNER -->
+    <div class="winner-section" id="winner-section">
+      <div class="winner-top">
+        <div>
+          <div class="winner-badge" id="w-badge">Melhor custo-benefÃ­cio</div>
+          <div class="winner-name" id="w-name">â</div>
+          <div class="winner-inst" id="w-inst">â</div>
+        </div>
+        <div class="winner-big">
+          <div class="winner-big-label">Rendimento lÃ­quido</div>
+          <div class="winner-big-val" id="w-liq">â</div>
+          <div class="winner-big-sub" id="w-pct">â do investido</div>
+        </div>
+      </div>
+      <div class="winner-metrics" id="winner-metrics"></div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-section">
+      <div class="table-topbar">
+        <span class="table-topbar-title">Comparativo de ativos</span>
+        <span class="count-badge" id="count-badge">â ativos</span>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:32px">#</th>
+              <th>Ativo</th>
+              <th class="r">Taxa a.a.</th>
+              <th class="r">Rend. bruto</th>
+              <th class="r">Rend. lÃ­quido</th>
+              <th class="r">PatrimÃ´nio final</th>
+              <th class="r">Liquidez</th>
+              <th class="r">Score</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CHART -->
+    <div class="chart-section">
+      <div class="chart-topbar">
+        <span class="chart-title">EvoluÃ§Ã£o do patrimÃ´nio</span>
+        <div class="chart-legend" id="chart-legend"></div>
+      </div>
+      <div style="position:relative;width:100%;height:260px">
+        <canvas id="evoChart" role="img" aria-label="EvoluÃ§Ã£o do patrimÃ´nio por tipo de investimento ao longo do perÃ­odo">GrÃ¡fico de linha com evoluÃ§Ã£o de patrimÃ´nio</canvas>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="disclaimer">
+  SimulaÃ§Ã£o baseada em Selic 13,75% a.a. e CDI 13,65% (Bacen, abr/2026). IR calculado pela tabela regressiva da Receita Federal: 22,5% (â¤180d) â 20% (â¤360d) â 17,5% (â¤720d) â 15% (acima). LCI, LCA, FII e PoupanÃ§a sÃ£o isentos de IR para pessoa fÃ­sica (Lei 11.033/2004). Valores sÃ£o estimativas. Este simulador nÃ£o constitui recomendaÃ§Ã£o de investimento.
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const ATIVOS = [
+  {id:'tselic', name:'Tesouro Selic 2027',      inst:'Tesouro Nacional',       cat:'RF PÃºblica',  risco:'baixo', taxa:13.75, ir:true,  cotaMin:138,  liq:'D+1',    color:'#48bb78'},
+  {id:'tipca',  name:'Tesouro IPCA+ 2029',      inst:'Tesouro Nacional',       cat:'RF PÃºblica',  risco:'baixo', taxa:10.16, ir:true,  cotaMin:42,   liq:'D+1',    color:'#68d391'},
+  {id:'tpre',   name:'Tesouro Prefixado 2027',  inst:'Tesouro Nacional',       cat:'RF PÃºblica',  risco:'baixo', taxa:12.92, ir:true,  cotaMin:836,  liq:'D+1',    color:'#9ae6b4'},
+  {id:'cdb100', name:'CDB 100% CDI',            inst:'Nubank / Inter / C6',    cat:'RF Privada',  risco:'baixo', taxa:13.65, ir:true,  cotaMin:1,    liq:'D+0',    color:'#63b3ed'},
+  {id:'cdb110', name:'CDB 110% CDI',            inst:'Bancos mÃ©dios / XP',     cat:'RF Privada',  risco:'baixo', taxa:15.02, ir:true,  cotaMin:1000, liq:'Vencto.', color:'#4299e1'},
+  {id:'lci',    name:'LCI 92% CDI',             inst:'BTG Pactual / ItaÃº',     cat:'RF Privada',  risco:'baixo', taxa:12.56, ir:false, cotaMin:1000, liq:'90 dias', color:'#9f7aea'},
+  {id:'lca',    name:'LCA 95% CDI',             inst:'Banco do Brasil',        cat:'RF Privada',  risco:'baixo', taxa:12.97, ir:false, cotaMin:500,  liq:'90 dias', color:'#b794f4'},
+  {id:'mxrf',   name:'MXRF11',                  inst:'Maxi Renda / B3',        cat:'FII',         risco:'medio', taxa:13.20, ir:false, cotaMin:10,   liq:'D+2',    color:'#ed8936'},
+  {id:'knri',   name:'KNRI11',                  inst:'Kinea Renda Imob. / B3', cat:'FII',         risco:'medio', taxa:11.80, ir:false, cotaMin:156,  liq:'D+2',    color:'#f6ad55'},
+  {id:'bcff',   name:'BCFF11',                  inst:'BTG Pactual / B3',       cat:'FII',         risco:'medio', taxa:12.50, ir:false, cotaMin:88,   liq:'D+2',    color:'#fbd38d'},
+  {id:'poup',   name:'PoupanÃ§a',                inst:'Qualquer banco',         cat:'RF PÃºblica',  risco:'baixo', taxa:7.67,  ir:false, cotaMin:0,    liq:'Mensal', color:'#718096'},
+];
+
+let meses=12, risco='baixo', usarIR=true, categoria='todas';
+let evoChart=null;
+
+function fmtBRL(v){ return 'R$ '+Math.round(v).toLocaleString('pt-BR'); }
+function fmtPct(v){ return v.toFixed(2)+'%'; }
+
+function getAliq(m){ if(m<=6)return 0.225; if(m<=12)return 0.20; if(m<=24)return 0.175; return 0.15; }
+
+function simular(a, val, aporte, m){
+  const r = a.taxa/100/12;
+  let p = val, ap = val;
+  for(let i=0;i<m;i++){ p=p*(1+r)+aporte; ap+=aporte; }
+  const rendBruto = p - ap;
+  const aliq = (a.ir && usarIR) ? getAliq(m) : 0;
+  const rendLiq = rendBruto*(1-aliq);
+  const totalAportado = ap;
+  const patrimonioFinal = totalAportado + rendLiq;
+  return {rendBruto, rendLiq, totalAportado, patrimonioFinal};
+}
+
+function score(a, val, aporte, m){
+  const {rendLiq} = simular(a,val,aporte,m);
+  const liqMap = {'D+0':1,'D+1':0.97,'D+2':0.93,'90 dias':0.85,'Vencto.':0.72,'Mensal':0.80};
+  const liqScore = liqMap[a.liq]||0.85;
+  const riscoScore = a.risco==='baixo'?1:0.87;
+  return rendLiq * liqScore * riscoScore;
+}
+
+function rankColor(i){ return ['#48bb78','#63b3ed','#ed8936','#718096'][Math.min(i,3)]; }
+
+function calc(){
+  const val = parseFloat(document.getElementById('valor').value)||1000;
+  const aporte = parseFloat(document.getElementById('aporte').value)||0;
+
+  let filtrados = ATIVOS.filter(a=>{
+    if(risco!=='todos' && a.risco!==risco && risco!=='medio') return false;
+    if(risco==='medio') return true;
+    if(categoria!=='todas' && a.cat!==categoria) return false;
+    if(a.cotaMin > val) return false;
+    return true;
+  });
+
+  if(categoria!=='todas') filtrados = ATIVOS.filter(a=>a.cat===categoria && (risco==='todos'||a.risco===risco||risco==='medio') && a.cotaMin<=val);
+
+  const resultados = filtrados.map(a=>{
+    const s = simular(a,val,aporte,meses);
+    const sc = score(a,val,aporte,meses);
+    return {...a,...s,score:sc};
+  }).sort((a,b)=>b.score-a.score);
+
+  const maxScore = resultados[0]?.score||1;
+  const totalAportado = val + aporte*meses;
+
+  document.getElementById('count-badge').textContent = resultados.length+' ativos';
+
+  // WINNER
+  const best = resultados[0];
+  if(best){
+    document.getElementById('w-name').textContent = best.name;
+    document.getElementById('w-inst').textContent = best.inst+' Â· '+best.cat;
+    document.getElementById('w-liq').textContent = fmtBRL(best.rendLiq);
+    const pct = (best.rendLiq/totalAportado*100);
+    document.getElementById('w-pct').textContent = fmtPct(pct)+' do investido em '+meses+' meses';
+    document.getElementById('winner-metrics').innerHTML = `
+      <div class="wm"><div class="wm-label">Total aportado</div><div class="wm-val b">${fmtBRL(totalAportado)}</div></div>
+      <div class="wm"><div class="wm-label">PatrimÃ´nio final</div><div class="wm-val g">${fmtBRL(best.patrimonioFinal)}</div></div>
+      <div class="wm"><div class="wm-label">Rend. bruto</div><div class="wm-val w">${fmtBRL(best.rendBruto)}</div></div>
+      <div class="wm"><div class="wm-label">Taxa a.a.</div><div class="wm-val a">${fmtPct(best.taxa)}</div></div>
+      <div class="wm"><div class="wm-label">Liquidez</div><div class="wm-val w" style="font-size:14px">${best.liq}</div></div>
+      <div class="wm"><div class="wm-label">Cota mÃ­nima</div><div class="wm-val w" style="font-size:14px">${best.cotaMin===0?'â':'R$ '+best.cotaMin.toLocaleString('pt-BR')}</div></div>
+    `;
+  }
+
+  // TABLE
+  document.getElementById('tbody').innerHTML = resultados.map((r,i)=>{
+    const barPct = Math.round(r.score/maxScore*100);
+    const bc = rankColor(i);
+    const rankClass = ['t1','t2','t3',''][Math.min(i,3)];
+    return `<tr class="${i===0?'best-row':''}">
+      <td class="rank-num ${rankClass}">${i+1}</td>
+      <td>
+        <div class="asset-name">${r.name}</div>
+        <div class="asset-inst">${r.inst}</div>
+        <div class="asset-tags">
+          <span class="tag tag-${r.risco}">${r.risco}</span>
+          ${r.ir?'<span class="tag tag-ir">IR</span>':'<span class="tag tag-isento">Isento IR</span>'}
+        </div>
+      </td>
+      <td class="r val-muted">${fmtPct(r.taxa)}</td>
+      <td class="r val-muted">${fmtBRL(r.rendBruto)}</td>
+      <td class="r ${i===0?'val-green':'val-blue'}">${fmtBRL(r.rendLiq)}</td>
+      <td class="r val-muted">${fmtBRL(r.patrimonioFinal)}</td>
+      <td class="r"><span class="liq-badge">${r.liq}</span></td>
+      <td class="r">
+        <div class="score-bar-wrap">
+          <div class="score-bar-bg"><div class="score-bar-fill" style="width:${barPct}%;background:${bc}"></div></div>
+          <span class="score-num">${barPct}</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // SIDEBAR RESUMO
+  document.getElementById('resumo-sidebar').innerHTML = [
+    {l:'Valor inicial', v:fmtBRL(val), c:'b'},
+    {l:'Aportes total', v:fmtBRL(aporte*meses), c:'w'},
+    {l:'Melhor ganho liq.', v:best?fmtBRL(best.rendLiq):'â', c:'g'},
+    {l:'Melhor patrimÃ´nio', v:best?fmtBRL(best.patrimonioFinal):'â', c:'g'},
+  ].map(x=>`<div style="display:flex;justify-content:space-between;align-items:center">
+    <span style="font-size:11px;color:var(--text3)">${x.l}</span>
+    <span style="font-size:12px;font-weight:600;color:var(--${x.c==='g'?'green':x.c==='b'?'accent':'text'})">${x.v}</span>
+  </div>`).join('');
+
+  buildChart(resultados.slice(0,5), val, aporte);
+}
+
+function buildChart(ativos, val, aporte){
+  const steps = [];
+  const stride = meses<=12?1:meses<=24?2:meses<=36?3:6;
+  for(let m=0;m<=meses;m+=stride) steps.push(m);
+
+  const labels = steps.map(m=>m===0?'InÃ­cio':m%12===0?(m/12)+'a':m+'m');
+
+  const datasets = ativos.map(a=>{
+    const data = steps.map(m=>{
+      let p=val, ap=val;
+      for(let i=0;i<m;i++){p=p*(a.taxa/100/12+1)+aporte;ap+=aporte;}
+      const rB=p-ap; const aliq=(a.ir&&usarIR)?getAliq(m):0;
+      return Math.round(ap+rB*(1-aliq));
+    });
+    return {label:a.name, data, borderColor:a.color, backgroundColor:'transparent', borderWidth:2, pointRadius:2, tension:0.35};
+  });
+
+  const legend = document.getElementById('chart-legend');
+  legend.innerHTML = ativos.map(a=>`<div class="legend-item"><div class="legend-dot" style="background:${a.color}"></div>${a.name.replace('Tesouro ','T. ')}</div>`).join('');
+
+  if(evoChart) evoChart.destroy();
+  evoChart = new Chart(document.getElementById('evoChart'),{
+    type:'line',
+    data:{labels, datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColor:'#0f1425',borderColor:'rgba(99,179,237,0.2)',borderWidth:1,titleColor:'#a0aec0',bodyColor:'#e2e8f0',callbacks:{label:ctx=>ctx.dataset.label.replace('Tesouro ','T. ')+': R$ '+ctx.parsed.y.toLocaleString('pt-BR')}}},
+      scales:{
+        x:{ticks:{color:'#718096',font:{size:10}},grid:{color:'rgba(99,179,237,0.05)'}},
+        y:{ticks:{color:'#718096',font:{size:10},callback:v=>'R$'+Math.round(v/1000)+'k'},grid:{color:'rgba(99,179,237,0.05)'}}
+      },
+      interaction:{mode:'index',intersect:false}
+    }
+  });
+}
+
+function setPeriod(m,el){
+  meses=m;
+  el.closest('.chips').querySelectorAll('.chip').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  calc();
+}
+function setRisco(r,el){
+  risco=r;
+  el.closest('.chips').querySelectorAll('.chip').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  calc();
+}
+function setIR(v,el){
+  usarIR=v;
+  document.getElementById('irSim').classList.toggle('active',v);
+  document.getElementById('irNao').classList.toggle('active',!v);
+  calc();
+}
+function setCat(c,el){
+  categoria=c;
+  el.closest('.chips').querySelectorAll('.chip').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  calc();
+}
+
+// Clock
+function updateClock(){
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+updateClock();
+setInterval(updateClock,1000);
+
+calc();
+</script>
+</body>
+</html>
