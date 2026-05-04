@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JARVIS | Agente de Vagas — Maio 2026</title>
+  <style>
+    :root{--bg:#0a0f1e;--card:#0e1628;--border:#1e2d50;--accent:#00c8ff;--accent2:#7b5cff;--text:#cdd9f5;--muted:#6b7fa8;--green:#00e5a0;--red:#ff4d6d;--yellow:#ffd166;--orange:#ff9f43;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
+    header{background:linear-gradient(135deg,#0d1b3e,#091229);border-bottom:1px solid var(--border);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(0,200,255,0.06);}
+    .logo{display:flex;align-items:center;gap:12px;}
+    .logo-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+    .logo h1{font-size:1.3rem;font-weight:700;letter-spacing:2px;color:var(--accent);text-shadow:0 0 20px rgba(0,200,255,0.4);}
+    .logo p{font-size:0.72rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+    .header-right{display:flex;align-items:center;gap:16px;}
+    .header-stats{display:flex;gap:12px;}
+    .stat-badge{background:rgba(0,200,255,0.06);border:1px solid rgba(0,200,255,0.15);border-radius:10px;padding:8px 16px;text-align:center;}
+    .stat-badge span{display:block;}
+    .stat-badge .num{font-size:1.4rem;font-weight:700;color:var(--accent);}
+    .stat-badge .lbl{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+    .btn-atualizar{background:linear-gradient(135deg,var(--accent2),#5a3fc0);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:0.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;transition:opacity 0.2s;white-space:nowrap;}
+    .btn-atualizar:hover{opacity:0.85;} .btn-atualizar.loading{opacity:0.6;pointer-events:none;}
+    .fonte-tag{font-size:0.58rem;padding:2px 7px;border-radius:8px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;vertical-align:middle;}
+    .fonte-linkedin{background:rgba(0,119,181,0.2);color:#4da6d4;border:1px solid rgba(0,119,181,0.35);}
+    .fonte-indeed{background:rgba(0,200,255,0.12);color:var(--accent);border:1px solid rgba(0,200,255,0.25);}
+    .fonte-glassdoor{background:rgba(123,92,255,0.12);color:var(--accent2);border:1px solid rgba(123,92,255,0.25);}
+    .fonte-roberthalf{background:rgba(255,159,67,0.15);color:var(--orange);border:1px solid rgba(255,159,67,0.3);}
+    .fonte-michaelpage{background:rgba(0,229,160,0.12);color:var(--green);border:1px solid rgba(0,229,160,0.25);}
+    .fonte-gupy{background:rgba(255,209,102,0.15);color:var(--yellow);border:1px solid rgba(255,209,102,0.3);}
+    .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);background:rgba(14,22,40,0.95);padding:0 32px;}
+    .tab-btn{padding:14px 28px;background:transparent;border:none;color:var(--muted);font-size:0.85rem;font-weight:600;cursor:pointer;letter-spacing:0.5px;border-bottom:2px solid transparent;transition:all 0.2s;margin-bottom:-1px;}
+    .tab-btn:hover{color:var(--text);} .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+    .tab-btn .tab-count{display:inline-block;background:rgba(0,200,255,0.15);color:var(--accent);border-radius:10px;padding:1px 8px;font-size:0.7rem;margin-left:8px;}
+    .filters{padding:14px 32px;display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--border);background:rgba(10,15,30,0.6);}
+    .filter-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:5px 13px;border-radius:20px;cursor:pointer;font-size:0.75rem;transition:all 0.2s;}
+    .filter-btn:hover,.filter-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,255,0.08);}
+    .filter-sep{width:1px;background:var(--border);margin:0 4px;}
+    main{padding:24px 32px;}
+    .section-title{font-size:0.7rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px;transition:all 0.25s;position:relative;overflow:hidden;}
+    .card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(to bottom,var(--accent),var(--accent2));opacity:0;transition:opacity 0.25s;}
+    .card:hover{border-color:rgba(0,200,255,0.3);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.3);}
+    .card:hover::before{opacity:1;} .card.nova{border-color:rgba(123,92,255,0.3);}
+    .card.nova::before{background:linear-gradient(to bottom,var(--accent2),#5a3fc0);opacity:1;}
+    .card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+    .card-num{font-size:0.62rem;color:var(--accent);background:rgba(0,200,255,0.1);border:1px solid rgba(0,200,255,0.2);border-radius:6px;padding:2px 7px;font-weight:600;white-space:nowrap;}
+    .card-num.nova{color:var(--accent2);background:rgba(123,92,255,0.1);border-color:rgba(123,92,255,0.3);}
+    .card-badges{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+    .card-badge{font-size:0.6rem;padding:2px 9px;border-radius:20px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;}
+    .badge-gestao{background:rgba(255,77,109,0.1);color:var(--red);border:1px solid rgba(255,77,109,0.25);}
+    .badge-coord{background:rgba(0,229,160,0.1);color:var(--green);border:1px solid rgba(0,229,160,0.25);}
+    .badge-senior{background:rgba(123,92,255,0.15);color:var(--accent2);border:1px solid rgba(123,92,255,0.3);}
+    .match-badge{font-size:0.62rem;padding:2px 9px;border-radius:20px;font-weight:700;}
+    .match-alto{background:rgba(0,229,160,0.15);color:var(--green);border:1px solid rgba(0,229,160,0.3);}
+    .match-medio{background:rgba(255,209,102,0.15);color:var(--yellow);border:1px solid rgba(255,209,102,0.3);}
+    .card-title{font-size:0.92rem;font-weight:700;line-height:1.35;color:#e8eeff;}
+    .card-company{font-size:0.8rem;color:var(--accent);font-weight:600;}
+    .card-meta{display:flex;flex-wrap:wrap;gap:7px;}
+    .meta-tag{font-size:0.7rem;color:var(--muted);display:flex;align-items:center;gap:3px;}
+    .card-salary{font-size:0.82rem;font-weight:700;color:var(--green);}
+    .card-desc{font-size:0.75rem;color:var(--muted);line-height:1.55;border-top:1px solid var(--border);padding-top:9px;}
+    .match-razao{font-size:0.7rem;color:var(--accent2);margin-top:3px;font-style:italic;}
+    .card-actions{display:flex;gap:7px;margin-top:auto;}
+    .btn{flex:1;padding:8px 0;border-radius:8px;border:none;cursor:pointer;font-size:0.72rem;font-weight:600;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:4px;}
+    .btn-ver{background:linear-gradient(135deg,var(--accent),#0090cc);color:#000;} .btn-ver:hover{opacity:0.85;}
+    .btn-aplicado{background:var(--bg);border:1px solid var(--border);color:var(--muted);} .btn-aplicado:hover{border-color:var(--green);color:var(--green);}
+    .btn-cv{background:var(--bg);border:1px solid var(--border);color:var(--muted);} .btn-cv:hover{border-color:var(--accent2);color:var(--accent2);}
+    .ribbon-nova{position:absolute;top:11px;right:-24px;background:var(--accent2);color:#fff;font-size:0.56rem;font-weight:800;padding:3px 30px;transform:rotate(35deg);letter-spacing:1px;display:none;}
+    .card.nova .ribbon-nova{display:block;}
+    .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#1a2a4a;border:1px solid var(--accent2);color:var(--text);padding:12px 24px;border-radius:12px;font-size:0.82rem;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
+    .toast.show{opacity:1;}
+    #painel-relatorio{display:none;}
+    .relatorio-resumo{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:24px;}
+    .resumo-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
+    .resumo-card .r-num{font-size:1.8rem;font-weight:800;display:block;}
+    .resumo-card .r-lbl{font-size:0.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+    .resumo-card.c-total .r-num{color:var(--accent);} .resumo-card.c-processo .r-num{color:var(--yellow);}
+    .resumo-card.c-entrevista .r-num{color:var(--orange);} .resumo-card.c-oferta .r-num{color:var(--green);}
+    .resumo-card.c-recusado .r-num{color:var(--red);}
+    .rel-table-wrap{overflow-x:auto;}
+    .rel-table{width:100%;border-collapse:collapse;font-size:0.8rem;}
+    .rel-table th{background:rgba(0,200,255,0.06);color:var(--muted);font-size:0.65rem;text-transform:uppercase;letter-spacing:1px;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+    .rel-table td{padding:11px 12px;border-bottom:1px solid rgba(30,45,80,0.5);vertical-align:top;}
+    .rel-table tr:hover td{background:rgba(0,200,255,0.03);}
+    .rel-vaga-titulo{font-weight:600;color:#e8eeff;font-size:0.82rem;} .rel-empresa{color:var(--accent);font-size:0.75rem;margin-top:2px;}
+    .status-select{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:5px 10px;font-size:0.75rem;cursor:pointer;width:100%;}
+    .status-select:focus{outline:none;border-color:var(--accent);}
+    .rel-input{background:transparent;border:none;color:var(--text);font-size:0.75rem;font-family:inherit;width:100%;resize:none;border-bottom:1px dashed var(--border);padding:3px 0;min-height:34px;transition:border-color 0.2s;}
+    .rel-input:focus{outline:none;border-bottom-color:var(--accent);} .rel-input::placeholder{color:var(--muted);}
+    .empty-relatorio{text-align:center;padding:70px 20px;color:var(--muted);}
+    .empty-relatorio .icon{font-size:2.8rem;display:block;margin-bottom:14px;}
+    footer{text-align:center;padding:18px;font-size:0.68rem;color:var(--muted);border-top:1px solid var(--border);margin-top:18px;}
+    @media(max-width:700px){header{flex-direction:column;gap:12px;}.header-right{flex-direction:column;width:100%;}main{padding:14px;}.filters,.tabs{padding:10px 14px;}}
+  </style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<header>
+  <div class="logo">
+    <div class="logo-icon">🤖</div>
+    <div><h1>JARVIS</h1><p>Agente de Vagas · Thiago Soliani · Maio 2026</p></div>
+  </div>
+  <div class="header-right">
+    <div class="header-stats">
+      <div class="stat-badge"><span class="num" id="total-vagas">0</span><span class="lbl">Vagas</span></div>
+      <div class="stat-badge"><span class="num" id="total-aplicados">0</span><span class="lbl">Aplicados</span></div>
+      <div class="stat-badge"><span class="num">SP</span><span class="lbl">Cidade</span></div>
+    </div>
+    <button class="btn-atualizar" onclick="rodarAtualizacao()" id="btn-update">🔄 Atualizar Vagas</button>
+  </div>
+</header>
+<div class="tabs">
+  <button class="tab-btn active" onclick="trocarAba('vagas',this)">🎯 Vagas <span class="tab-count" id="tc-vagas">0</span></button>
+  <button class="tab-btn" onclick="trocarAba('relatorio',this)">📊 Relatório <span class="tab-count" id="tc-relatorio">0</span></button>
+</div>
+<div id="painel-vagas">
+  <div class="filters">
+    <button class="filter-btn active" onclick="filtrar('todos',this)">Todos</button>
+    <button class="filter-btn" onclick="filtrar('gestao',this)">Gestão</button>
+    <button class="filter-btn" onclick="filtrar('coord',this)">Coordenação</button>
+    <button class="filter-btn" onclick="filtrar('senior',this)">Sênior</button>
+    <button class="filter-btn" onclick="filtrar('novas',this)">🆕 Novas</button>
+    <div class="filter-sep"></div>
+    <button class="filter-btn" onclick="filtrar('indeed',this)">Indeed</button>
+    <button class="filter-btn" onclick="filtrar('glassdoor',this)">Glassdoor</button>
+    <button class="filter-btn" onclick="filtrar('roberthalf',this)">Robert Half</button>
+    <button class="filter-btn" onclick="filtrar('michaelpage',this)">Michael Page</button>
+    <button class="filter-btn" onclick="filtrar('gupy',this)">Gupy</button>
+  </div>
+  <main>
+    <p class="section-title" id="sub-titulo">📡 30 vagas · match ≥63% · Coord. e acima · Maio 2026 · São Paulo, SP</p>
+    <div class="grid" id="grid"></div>
+  </main>
+</div>
+<div id="painel-relatorio">
+  <main>
+    <p class="section-title">📊 Acompanhamento de candidaturas — Thiago Soliani de Mascena</p>
+    <div class="relatorio-resumo">
+      <div class="resumo-card c-total"><span class="r-num" id="r-total">0</span><span class="r-lbl">Total</span></div>
+      <div class="resumo-card c-processo"><span class="r-num" id="r-processo">0</span><span class="r-lbl">Em Processo</span></div>
+      <div class="resumo-card c-entrevista"><span class="r-num" id="r-entrevista">0</span><span class="r-lbl">Entrevista</span></div>
+      <div class="resumo-card c-oferta"><span class="r-num" id="r-oferta">0</span><span class="r-lbl">Oferta</span></div>
+      <div class="resumo-card c-recusado"><span class="r-num" id="r-recusado">0</span><span class="r-lbl">Recusado</span></div>
+    </div>
+    <div id="rel-conteudo"></div>
+  </main>
+</div>
+<footer>JARVIS · 30 vagas · Indeed + Glassdoor + Robert Half + Michael Page + Gupy · São Paulo · Maio 2026</footer>
+<script>
+const POOL=[
+  {id:1,titulo:"Gerente de Marketing — Cosméticos de Luxo",empresa:"Multinacional Cosméticos (Confidencial)",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"gestao",fonte:"roberthalf",score:90,nova:true,postedAt:"Mai/2026",match:"Multinacional luxo SP — branding, campanhas integradas, influenciadores e PDV. Fit direto com Lacoste/Speedo.",url:"https://www.roberthalf.com/br/pt/vagas/sao-paulo/gerente-de-marketing"},
+  {id:2,titulo:"Brand Manager — Varejo de Moda",empresa:"Grupo Aste",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"gestao",fonte:"indeed",score:88,nova:true,postedAt:"Mai/2026",match:"Gestão de marca em varejo de moda + e-commerce. Inglês fluente req. — fit direto Lacoste + Speedo.",url:"https://br.indeed.com/q-brand-manager-l-s%C3%A3o-paulo,-sp-vagas.html"},
+  {id:3,titulo:"Coordenador de Eventos e Conteúdo — Beleza Premium",empresa:"Multinacional Beleza (via Michael Page)",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"coord",fonte:"michaelpage",score:87,nova:true,postedAt:"Mai/2026",match:"Eventos + conteúdo omnicanal em beleza premium. Fit com Iguatemi/Higienópolis + Speedo.",url:"https://www.michaelpage.com.br/jobs/marketing/brasil-s%C3%A3o-paulo"},
+  {id:4,titulo:"Gerente de Marketing — Multinacional Cosméticos SP",empresa:"Multinacional Cosméticos (via Robert Half)",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"gestao",fonte:"roberthalf",score:87,nova:true,postedAt:"Mai/2026",match:"Liderança de marca global — adaptar conceitos internacionais ao BR. Igual ao histórico Lacoste/Speedo.",url:"https://www.roberthalf.com/br/pt/vagas/sao-paulo/gerente-de-marketing"},
+  {id:5,titulo:"Coordenador Sênior de Mídia — Marca Premium",empresa:"Marca Premium (via Michael Page)",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"coord",fonte:"michaelpage",score:85,nova:true,postedAt:"Mai/2026",match:"Mídia digital + offline em marca premium. Fit com gestão de agências Grupo GO.",url:"https://www.michaelpage.com.br/jobs/marketing/brasil-s%C3%A3o-paulo"},
+  {id:6,titulo:"Gerente de Trade Marketing — Alimentos e Bebidas",empresa:"Empresa A&B (via Michael Page)",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"gestao",fonte:"michaelpage",score:84,nova:true,postedAt:"Mai/2026",match:"Trade em A&B multinacional — PDV, equipe, KPIs. Fit direto GrandVision/Fototica.",url:"https://www.michaelpage.com.br/jobs/marketing/brasil-s%C3%A3o-paulo"},
+  {id:7,titulo:"Gerente de Marketing — Multinacional Americana Tech",empresa:"Multinacional Americana (via Robert Half)",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"gestao",fonte:"roberthalf",score:83,nova:true,postedAt:"Mai/2026",match:"Brand awareness + influenciadores + mídia paga. Perfil generalista sênior — fit elevado.",url:"https://www.roberthalf.com/br/pt/vagas/sao-paulo/gerente-de-marketing"},
+  {id:8,titulo:"Gerente de Brand Marketing — Beiersdorf NIVEA",empresa:"Beiersdorf NIVEA",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"gestao",fonte:"indeed",score:82,nova:true,postedAt:"Mai/2026",match:"Brand Manager multinacional FMCG — inovação, portfólio e campanhas. Fit Speedo/Lacoste.",url:"https://br.indeed.com/q-brand-manager-l-s%C3%A3o-paulo,-sp-vagas.html"},
+  {id:9,titulo:"Coordenador de Marketing — Franquias e Varejo",empresa:"Empresa de Franquias (via Michael Page)",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"coord",fonte:"michaelpage",score:82,nova:true,postedAt:"Mai/2026",match:"Posicionamento + GTM + suporte comercial em franquias. Fit Grupo GO e Fototica.",url:"https://www.michaelpage.com.br/jobs/marketing/brasil-s%C3%A3o-paulo"},
+  {id:10,titulo:"Head de Marketing — Holding Familiar",empresa:"Holding Familiar (via Michael Page)",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"gestao",fonte:"michaelpage",score:80,nova:true,postedAt:"Mai/2026",match:"Liderança total de marketing + comunicação. Cargo aspiracional com scope compatível ao perfil.",url:"https://www.michaelpage.com.br/jobs/marketing/brasil-s%C3%A3o-paulo"},
+  {id:11,titulo:"Gerente de Marketing — Rede de Franquias",empresa:"Rede de Franquias (via Michael Page)",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"gestao",fonte:"michaelpage",score:80,nova:true,postedAt:"Mai/2026",match:"Marketing de rede — campanhas locais, digital e branding de franquia. Fit GrandVision.",url:"https://www.michaelpage.com.br/jobs/marketing/brasil-s%C3%A3o-paulo"},
+  {id:12,titulo:"Gerente de Trade Marketing — Agronegócio",empresa:"Multinacional Agroneg. (via Robert Half)",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"gestao",fonte:"roberthalf",score:78,nova:false,postedAt:"Mai/2026",match:"Plano anual, brand positioning e eventos. Fit com experiência generalista do Thiago.",url:"https://www.roberthalf.com/br/pt/vagas/sao-paulo/gerente-de-marketing"},
+  {id:13,titulo:"Especialista CRM e Owned Media — H&M Brasil",empresa:"H&M Brasil (via Michael Page)",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"senior",fonte:"michaelpage",score:76,nova:true,postedAt:"Mai/2026",match:"CRM + owned media em moda global. Inglês fluente req. — fit lifestyle/moda Lacoste.",url:"https://www.michaelpage.com.br/jobs/marketing/brasil-s%C3%A3o-paulo"},
+  {id:14,titulo:"Coordenador de Marketing — Lojas Torra",empresa:"Lojas Torra",local:"São Paulo, SP",modelo:"Presencial",salario:"A combinar",nivel:"coord",fonte:"indeed",score:75,nova:true,postedAt:"Mai/2026",match:"Coord. em varejo nacional — budget, GTM e agências. Fit GrandVision/Fototica.",url:"https://br.indeed.com/q-coordenador-de-marketing-l-s%C3%A3o-paulo,-sp-vagas.html"},
+  {id:15,titulo:"Gerente de Marketing — Shopping Centers",empresa:"WE9 Resultados em Shopping Centers",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"gestao",fonte:"glassdoor",score:75,nova:true,postedAt:"Mai/2026",match:"Marketing de shopping — eventos, branding e campanhas. Fit Iguatemi/Casa Higienópolis.",url:"https://www.glassdoor.com.br/Vaga/s%C3%A3o-paulo-marketing-branding-vagas-SRCH_IL.0,9_IC2479061_KO10,28.htm"},
+  {id:16,titulo:"Coordenador de Marketing — Grupo Farmax",empresa:"Grupo Farmax",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"coord",fonte:"indeed",score:77,nova:true,postedAt:"Mai/2026",match:"Saúde/beleza — portfólio, P&L, GTM e trade. Match elevado com histórico completo.",url:"https://br.indeed.com/q-coordenador-de-marketing-l-s%C3%A3o-paulo,-sp-vagas.html"},
+  {id:17,titulo:"Gerente de Marketing — Indústria EPI",empresa:"Indústria EPI (via Glassdoor)",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"gestao",fonte:"glassdoor",score:74,nova:false,postedAt:"Mai/2026",match:"Plano anual, brand e campanhas em indústria. Fit generalista sênior.",url:"https://www.glassdoor.com.br/Vaga/s%C3%A3o-paulo-gerente-de-marketing-vagas-SRCH_IL.0,9_IC2479061_KO10,30.htm"},
+  {id:18,titulo:"Coordenador de Marketing de Influência e RP",empresa:"Pacco (Moda / Barueri)",local:"Barueri, SP",modelo:"Híbrido",salario:"A combinar",nivel:"coord",fonte:"glassdoor",score:76,nova:true,postedAt:"Mai/2026",match:"Influência + PR + eventos em moda. Fit Speedo, Lacoste e ativações do Grupo GO.",url:"https://www.glassdoor.com.br/Vaga/s%C3%A3o-paulo-marketing-de-luxo-vagas-SRCH_IL.0,9_IC2479061_KO10,27.htm"},
+  {id:19,titulo:"Coordenador de Marketing — Azul Linhas Aéreas",empresa:"Azul Linhas Aéreas",local:"Barueri, SP",modelo:"Presencial",salario:"A combinar",nivel:"coord",fonte:"gupy",score:73,nova:true,postedAt:"Mai/2026",match:"Marketing em companhia aérea — branding, campanhas e eventos. Fit com histórico eventos.",url:"https://voeazul.gupy.io/jobs/8722978?jobBoardSource=gupy_public_page"},
+  {id:20,titulo:"Gerente de Comunicação e Marketing — Fundação",empresa:"Fundação Europeia (via Robert Half)",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"gestao",fonte:"roberthalf",score:72,nova:false,postedAt:"Mai/2026",match:"Comunicação + branding + redes sociais. Tropicar estratégia europeia ao BR — fit GrandVision.",url:"https://www.roberthalf.com/br/pt/vagas/sao-paulo/coordenador-de-marketing"},
+  {id:21,titulo:"Gerente de Marketing — Lojas Renner",empresa:"Lojas Renner",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"gestao",fonte:"glassdoor",score:72,nova:true,postedAt:"Mai/2026",match:"Varejo moda — projetos, gestão de equipe e KPIs. Fit parcial, empresa premium.",url:"https://www.glassdoor.com.br/Vaga/s%C3%A3o-paulo-gerente-de-marketing-vagas-SRCH_IL.0,9_IC2479061_KO10,30.htm"},
+  {id:22,titulo:"Gerente de Growth Marketing — Amplifica Digital",empresa:"Amplifica Digital",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"gestao",fonte:"glassdoor",score:71,nova:false,postedAt:"Mai/2026",match:"Growth + aquisição + retenção. Fit parcial — cargo sênior compensa gap digital.",url:"https://www.glassdoor.com.br/Vaga/s%C3%A3o-paulo-gerente-de-marketing-vagas-SRCH_IL.0,9_IC2479061_KO10,30.htm"},
+  {id:23,titulo:"Coordenador de Marketing — Omniteca (15 marcas)",empresa:"Omniteca",local:"Guarulhos, SP",modelo:"Híbrido",salario:"A combinar",nivel:"coord",fonte:"glassdoor",score:70,nova:true,postedAt:"Mai/2026",match:"Multi-marcas — social media, eventos e conteúdo. Fit com gestão Speedo+Lacoste simultâneas.",url:"https://www.glassdoor.com.br/Vaga/s%C3%A3o-paulo-marketing-branding-vagas-SRCH_IL.0,9_IC2479061_KO10,28.htm"},
+  {id:24,titulo:"Diretor de Operações de Eventos",empresa:"Empresa de Shows (via Michael Page)",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"gestao",fonte:"michaelpage",score:69,nova:true,postedAt:"Mai/2026",match:"Eventos de grande porte — shows, feiras. Fit com gestão Casa Higienópolis/Iguatemi.",url:"https://www.michaelpage.com.br/jobs/marketing/brasil-s%C3%A3o-paulo"},
+  {id:25,titulo:"Gerente de Marketing — Serasa Experian",empresa:"Serasa Experian",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"gestao",fonte:"glassdoor",score:68,nova:false,postedAt:"Mai/2026",match:"B2B/B2C em tech + dados. Branding e digital — fit parcial, empresa de grande porte.",url:"https://www.glassdoor.com.br/Vaga/s%C3%A3o-paulo-gerente-de-marketing-vagas-SRCH_IL.0,9_IC2479061_KO10,30.htm"},
+  {id:26,titulo:"Coordenador de Marketing — Solar21",empresa:"Solar21",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"coord",fonte:"indeed",score:70,nova:true,postedAt:"Mai/2026",match:"Varejo + e-commerce + agências. Fit com base GrandVision em varejo.",url:"https://br.indeed.com/q-coordenador-de-marketing-l-s%C3%A3o-paulo,-sp-vagas.html"},
+  {id:27,titulo:"Gerente de Marketing Digital — Jobbol",empresa:"Jobbol",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"gestao",fonte:"glassdoor",score:67,nova:false,postedAt:"Mai/2026",match:"CRO + performance + mídia paga. Fit parcial — cargo sênior e scope amplo.",url:"https://www.glassdoor.com.br/Vaga/s%C3%A3o-paulo-gerente-de-marketing-vagas-SRCH_IL.0,9_IC2479061_KO10,30.htm"},
+  {id:28,titulo:"Coordenador de Marketing — Grupo Raízes",empresa:"Grupo Raízes",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"coord",fonte:"indeed",score:65,nova:true,postedAt:"Mai/2026",match:"Brand + comunicação + agências. Perfil generalista — fit médio.",url:"https://br.indeed.com/q-gerente-marketing-l-s%C3%A3o-paulo,-sp-vagas.html"},
+  {id:29,titulo:"Gerente de Marketing — Construção Civil SP",empresa:"Construtora SP (via Robert Half)",local:"São Paulo, SP",modelo:"Presencial",salario:"A combinar",nivel:"gestao",fonte:"roberthalf",score:63,nova:false,postedAt:"Mai/2026",match:"Branding + redes sociais + lançamentos. Fit médio — competências transferíveis.",url:"https://www.roberthalf.com/br/pt/vagas/sao-paulo/coordenador-de-marketing"},
+  {id:30,titulo:"Coordenador de Trade Marketing — Pet Society",empresa:"Pet Society",local:"São Paulo, SP",modelo:"Híbrido",salario:"A combinar",nivel:"coord",fonte:"indeed",score:73,nova:true,postedAt:"Mai/2026",match:"Trade + PDV + promotores em FMCG pet. Fit com base trade GrandVision/Fototica.",url:"https://br.indeed.com/q-coordenador-de-marketing-l-s%C3%A3o-paulo,-sp-vagas.html"},
+];
+const SCORE_MINIMO=63;
+function passaFiltro(v){return v.score>=SCORE_MINIMO;}
+function getAplicados(){try{return JSON.parse(localStorage.getItem('jarvis_aplic_maio26')||'{}');}catch{return {};}}
+function saveAplicados(o){localStorage.setItem('jarvis_aplic_maio26',JSON.stringify(o));}
+function getRelData(){try{return JSON.parse(localStorage.getItem('jarvis_rel_maio26')||'{}');}catch{return {};}}
+function saveRelData(o){localStorage.setItem('jarvis_rel_maio26',JSON.stringify(o));}
+function getRelItem(id){const d=getRelData();return d[id]||{status:'aplicado',dataAplicacao:hoje(),anotacoes:'',proximoPasso:''};}
+function saveRelItem(id,item){const d=getRelData();d[id]=item;saveRelData(d);}
+function hoje(){return new Date().toLocaleDateString('pt-BR');}
+let vagasAtivas=[];
+function rodarAtualizacao(){
+  const btn=document.getElementById('btn-update');
+  btn.classList.add('loading');btn.textContent='⏳ Atualizando...';
+  setTimeout(()=>{
+    const apl=getAplicados();
+    const aplIds=new Set(Object.keys(apl).filter(k=>!!apl[k]).map(Number));
+    vagasAtivas=POOL.filter(v=>passaFiltro(v)&&!aplIds.has(v.id));
+    renderCards(vagasAtivas);atualizarContadores();
+    btn.classList.remove('loading');btn.innerHTML='🔄 Atualizar Vagas';
+    showToast(`✅ ${vagasAtivas.length} vagas · ${aplIds.size} candidatura(s) registrada(s)`);
+  },600);
+}
+function atualizarContadores(){
+  const apl=getAplicados();
+  const aplIds=Object.keys(apl).filter(k=>!!apl[k]).map(Number);
+  document.getElementById('total-vagas').textContent=vagasAtivas.length;
+  document.getElementById('total-aplicados').textContent=aplIds.length;
+  document.getElementById('tc-vagas').textContent=vagasAtivas.length;
+  document.getElementById('tc-relatorio').textContent=aplIds.length;
+  const rel=getRelData();let proc=0,entr=0,ofer=0,recu=0;
+  aplIds.forEach(id=>{const s=(rel[id]||{}).status||'aplicado';if(s==='processo')proc++;else if(s==='entrevista')entr++;else if(s==='oferta')ofer++;else if(s==='recusado')recu++;});
+  document.getElementById('r-total').textContent=aplIds.length;
+  document.getElementById('r-processo').textContent=proc;
+  document.getElementById('r-entrevista').textContent=entr;
+  document.getElementById('r-oferta').textContent=ofer;
+  document.getElementById('r-recusado').textContent=recu;
+}
+const FONTE_CLS={indeed:'fonte-indeed',glassdoor:'fonte-glassdoor',roberthalf:'fonte-roberthalf',michaelpage:'fonte-michaelpage',gupy:'fonte-gupy',linkedin:'fonte-linkedin'};
+const FONTE_LABEL={indeed:'Indeed',glassdoor:'Glassdoor',roberthalf:'Robert Half',michaelpage:'Michael Page',gupy:'Gupy',linkedin:'LinkedIn'};
+function renderCards(lista){
+  const grid=document.getElementById('grid');grid.innerHTML='';
+  if(lista.length===0){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)"><span style="font-size:2.5rem;display:block;margin-bottom:12px">🎉</span><p>Todas as vagas foram aplicadas!</p></div>';return;}
+  lista.forEach(v=>{
+    const mCls=v.score>=80?'match-alto':'match-medio';
+    const nCls=v.nivel==='gestao'?'badge-gestao':v.nivel==='coord'?'badge-coord':'badge-senior';
+    const nLbl=v.nivel==='gestao'?'Gestão':v.nivel==='coord'?'Coord.':'Sênior';
+    const fCls=FONTE_CLS[v.fonte]||'fonte-indeed';
+    const fLbl=FONTE_LABEL[v.fonte]||v.fonte;
+    const card=document.createElement('div');
+    card.className='card'+(v.nova?' nova':'');
+    card.innerHTML=(v.nova?'<div class="ribbon-nova">NOVA</div>':'')+`
+      <div class="card-header">
+        <div class="card-num${v.nova?' nova':''}">#${String(v.id).padStart(2,'0')}</div>
+        <div class="card-badges">
+          <span class="card-badge ${nCls}">${nLbl}</span>
+          <span class="match-badge ${mCls}">⚡ ${v.score}%</span>
+          <span class="fonte-tag ${fCls}">${fLbl}</span>
+        </div>
+      </div>
+      <div><div class="card-title">${v.titulo}</div><div class="card-company">${v.empresa}</div></div>
+      <div class="card-meta">
+        <span class="meta-tag">📍 ${v.local}</span>
+        <span class="meta-tag">💼 ${v.modelo}</span>
+        <span class="meta-tag">📅 ${v.postedAt}</span>
+      </div>
+      <div class="card-desc"><div class="match-razao">🎯 ${v.match}</div></div>
+      <div class="card-actions">
+        <button class="btn btn-ver" onclick="window.open('${v.url}','_blank')">🔗 Ver Vaga</button>
+        <button class="btn btn-aplicado" onclick="toggleAplicado(${v.id})">⬜ Aplicado</button>
+        <button class="btn btn-cv" onclick="pedirCV(${v.id})">📄 CV</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+function toggleAplicado(id){
+  const apl=getAplicados();apl[id]=true;saveAplicados(apl);
+  const rel=getRelData();if(!rel[id])rel[id]={status:'aplicado',dataAplicacao:hoje(),anotacoes:'',proximoPasso:''};saveRelData(rel);
+  showToast('✅ Candidatura registrada! Vaga movida para o Relatório.');
+  setTimeout(()=>rodarAtualizacao(),800);
+}
+function pedirCV(id){const v=POOL.find(x=>x.id===id);alert(`📄 Gere currículo para a vaga #${String(id).padStart(2,'0')} — ${v.titulo} — ${v.empresa}`);}
+function filtrar(tipo,btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  if(tipo==='todos')renderCards(vagasAtivas);
+  else if(['indeed','glassdoor','roberthalf','michaelpage','gupy','linkedin'].includes(tipo))renderCards(vagasAtivas.filter(v=>v.fonte===tipo));
+  else if(tipo==='novas')renderCards(vagasAtivas.filter(v=>v.nova));
+  else renderCards(vagasAtivas.filter(v=>v.nivel===tipo));
+}
+function renderRelatorio(){
+  const apl=getAplicados();const aplIds=Object.keys(apl).filter(k=>!!apl[k]).map(Number);
+  const wrap=document.getElementById('rel-conteudo');atualizarContadores();
+  if(aplIds.length===0){wrap.innerHTML='<div class="empty-relatorio"><span class="icon">📭</span><p>Nenhuma candidatura ainda.</p></div>';return;}
+  const aplicadas=POOL.filter(v=>aplIds.includes(v.id));
+  const sOpts=[{value:'aplicado',label:'📨 Aplicado'},{value:'processo',label:'⏳ Em Processo'},{value:'entrevista',label:'🎙️ Entrevista'},{value:'oferta',label:'🎉 Oferta'},{value:'recusado',label:'❌ Recusado'}];
+  let html='<div class="rel-table-wrap"><table class="rel-table"><thead><tr><th>#</th><th>Vaga / Empresa</th><th>Fonte</th><th>Match</th><th>Data</th><th>Status</th><th>Anotações</th><th>Próximo Passo</th></tr></thead><tbody>';
+  aplicadas.forEach(v=>{
+    const item=getRelItem(v.id);const mCls=v.score>=80?'match-alto':'match-medio';
+    const fCls=FONTE_CLS[v.fonte]||'fonte-indeed';const fLbl=FONTE_LABEL[v.fonte]||v.fonte;
+    const opts=sOpts.map(o=>`<option value="${o.value}" ${item.status===o.value?'selected':''}>${o.label}</option>`).join('');
+    html+=`<tr><td><span style="color:var(--accent);font-weight:700">#${String(v.id).padStart(2,'0')}</span></td>
+      <td><div class="rel-vaga-titulo">${v.titulo}</div><div class="rel-empresa">${v.empresa}</div></td>
+      <td><span class="fonte-tag ${fCls}">${fLbl}</span></td>
+      <td><span class="match-badge ${mCls}">⚡ ${v.score}%</span></td>
+      <td><input type="date" class="status-select" style="width:135px" value="${toBR(item.dataAplicacao)}" onchange="salvarCampo(${v.id},'dataAplicacao',fromDate(this.value))"></td>
+      <td><select class="status-select" onchange="salvarCampo(${v.id},'status',this.value)">${opts}</select></td>
+      <td style="min-width:160px"><textarea class="rel-input" rows="2" placeholder="Notas..." onblur="salvarCampo(${v.id},'anotacoes',this.value)">${item.anotacoes}</textarea></td>
+      <td style="min-width:160px"><textarea class="rel-input" rows="2" placeholder="Próximos passos..." onblur="salvarCampo(${v.id},'proximoPasso',this.value)">${item.proximoPasso}</textarea></td>
+    </tr>`;
+  });
+  html+='</tbody></table></div>';wrap.innerHTML=html;
+}
+function salvarCampo(id,campo,valor){const item=getRelItem(id);item[campo]=valor;saveRelItem(id,item);atualizarContadores();}
+function toBR(s){if(!s)return'';const p=s.split('/');return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:''; }
+function fromDate(s){if(!s)return'';const p=s.split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:''; }
+function trocarAba(aba,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  document.getElementById('painel-vagas').style.display=aba==='vagas'?'block':'none';
+  document.getElementById('painel-relatorio').style.display=aba==='relatorio'?'block':'none';
+  if(aba==='relatorio')renderRelatorio();
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+rodarAtualizacao();
+</script>
+</body>
+</html>
